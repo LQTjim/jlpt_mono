@@ -14,9 +14,10 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
-  AuthProvider({AuthService? authService})
+  AuthProvider({AuthService? authService, ApiClient? apiClient})
       : _authService = authService ?? AuthService() {
-    _apiClient = ApiClient(_authService, onAuthFailure: signOut);
+    _apiClient =
+        apiClient ?? ApiClient(_authService, onAuthFailure: signOut);
   }
 
   User? get user => _user;

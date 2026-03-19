@@ -14,16 +14,19 @@ class AuthService {
 
   final FlutterSecureStorage _storage;
   final GoogleSignIn _googleSignIn;
+  final http.Client _httpClient;
   Completer<bool>? _refreshCompleter;
 
   AuthService({
     FlutterSecureStorage? storage,
     GoogleSignIn? googleSignIn,
+    http.Client? httpClient,
   })  : _storage = storage ?? const FlutterSecureStorage(),
         _googleSignIn = googleSignIn ??
             GoogleSignIn(
               scopes: ['email', 'profile'],
-            );
+            ),
+        _httpClient = httpClient ?? http.Client();
 
   Future<User> signInWithGoogle() async {
     final account = await _googleSignIn.signIn();
@@ -37,7 +40,7 @@ class AuthService {
       throw Exception('Failed to get Google ID token');
     }
 
-    final response = await http.post(
+    final response = await _httpClient.post(
       Uri.parse('${ApiConfig.baseUrl}/api/auth/google'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'idToken': idToken}),
@@ -85,7 +88,7 @@ class AuthService {
     final refreshToken = await _storage.read(key: _refreshTokenKey);
     if (refreshToken == null) return false;
 
-    final response = await http.post(
+    final response = await _httpClient.post(
       Uri.parse('${ApiConfig.baseUrl}/api/auth/refresh'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'refreshToken': refreshToken}),
@@ -108,7 +111,7 @@ class AuthService {
     final refreshToken = await _storage.read(key: _refreshTokenKey);
     if (refreshToken != null) {
       try {
-        await http.post(
+        await _httpClient.post(
           Uri.parse('${ApiConfig.baseUrl}/api/auth/logout'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'refreshToken': refreshToken}),

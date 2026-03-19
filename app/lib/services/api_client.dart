@@ -7,9 +7,14 @@ import 'auth_service.dart';
 
 class ApiClient {
   final AuthService _authService;
+  final http.Client _httpClient;
   final Future<void> Function() onAuthFailure;
 
-  ApiClient(this._authService, {required this.onAuthFailure});
+  ApiClient(
+    this._authService, {
+    required this.onAuthFailure,
+    http.Client? httpClient,
+  }) : _httpClient = httpClient ?? http.Client();
 
   Future<Map<String, String>> _headers() async {
     final token = await _authService.getAccessToken();
@@ -38,7 +43,7 @@ class ApiClient {
 
   Future<http.Response> get(String path) {
     return _withAuthRetry(
-      () async => http.get(
+      () async => _httpClient.get(
         Uri.parse('${ApiConfig.baseUrl}$path'),
         headers: await _headers(),
       ),
@@ -47,7 +52,7 @@ class ApiClient {
 
   Future<http.Response> post(String path, {Object? body}) {
     return _withAuthRetry(
-      () async => http.post(
+      () async => _httpClient.post(
         Uri.parse('${ApiConfig.baseUrl}$path'),
         headers: await _headers(),
         body: body != null ? jsonEncode(body) : null,
