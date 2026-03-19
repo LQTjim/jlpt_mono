@@ -1,0 +1,134 @@
+# IDE
+.idea/
+.vscode/
+.cursor/
+*.iws
+*.iml
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Java / Maven
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Spring
+*.factorypath
+.apt_generated
+.classpath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Local config
+application-local.properties
+
+# Generated
+HELP.md
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+app/android/app/debug
+app/android/app/profile
+app/android/app/release
+/app/coverage/
+
+# Flutter - Symbolication / Obfuscation
+app.*.symbols
+app.*.map.json
+
+# Flutter - Android
+app/android/.gradle/
+app/android/captures/
+app/android/gradlew
+app/android/gradlew.bat
+app/android/local.properties
+app/android/**/GeneratedPluginRegistrant.java
+app/android/.cxx/
+app/android/key.properties
+app/android/**/*.keystore
+app/android/**/*.jks
+
+# Flutter - iOS
+app/ios/**/dgph
+app/ios/*.mode1v3
+app/ios/*.mode2v3
+app/ios/*.moved-aside
+app/ios/*.pbxuser
+app/ios/*.perspectivev3
+app/ios/**/*sync/
+app/ios/.sconsign.dblite
+app/ios/.tags*
+app/ios/**/.vagrant/
+app/ios/**/DerivedData/
+app/ios/**/Pods/
+app/ios/**/.symlinks/
+app/ios/profile
+app/ios/xcuserdata
+app/ios/**/.generated/
+app/ios/Flutter/App.framework
+app/ios/Flutter/Flutter.framework
+app/ios/Flutter/Flutter.podspec
+app/ios/Flutter/Generated.xcconfig
+app/ios/Flutter/ephemeral/
+app/ios/Flutter/app.flx
+app/ios/Flutter/app.zip
+app/ios/Flutter/flutter_assets/
+app/ios/Flutter/flutter_export_environment.sh
+app/ios/ServiceDefinitions.json
+app/ios/Runner/GeneratedPluginRegistrant.*
+!app/ios/default.mode1v3
+!app/ios/default.mode2v3
+!app/ios/default.pbxuser
+!app/ios/default.perspectivev3
+
+# Flutter - macOS
+app/macos/**/Flutter/ephemeral/
+app/macos/**/Pods/
+app/macos/**/dgph
+app/macos/**/xcuserdata/
+
+# Flutter - Linux
+app/linux/flutter/ephemeral
+
+# Flutter - Windows
+app/windows/flutter/ephemeral/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+x64/
+x86/
+*.[Cc]ache
+!*.[Cc]ache/
+
+# Env
+.env
+
+# Misc
+*.log
+*.swp
+.history
+.buildlog/
+migrate_working_dir/
