@@ -87,3 +87,28 @@ databaseChangeLog:
             referencedColumnNames: id
             constraintName: fk_refresh_tokens_user
             onDelete: CASCADE
+
+  - changeSet:
+      id: 003-create-vocabulary-tables
+      author: ktlin
+      changes:
+        - sqlFile:
+            path: db/changelog/003-create-vocabulary-tables.sql
+            relativeToChangelogFile: false
+
+  - changeSet:
+      id: 003b-create-vocabulary-trigger
+      author: ktlin
+      changes:
+        - sqlFile:
+            path: db/changelog/003b-create-vocabulary-trigger.sql
+            relativeToChangelogFile: false
+            splitStatements: false
+
+  - changeSet:
+      id: 004-seed-vocabulary-data
+      author: ktlin
+      changes:
+        - sqlFile:
+            path: db/changelog/004-seed-vocabulary-data.sql
+            relativeToChangelogFile: false
