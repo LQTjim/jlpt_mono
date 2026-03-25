@@ -20,17 +20,17 @@ class LanguageSelectionScreen extends StatelessWidget {
             children: [
               Text(
                 'Select Language / 選擇語言',
-                style: AppTypography.headingMedium(const Locale('zh')),
+                style: AppTypography.headingMedium(LocaleProvider.localeZh),
               ),
               const SizedBox(height: AppSpacing.xxl),
               _LanguageOption(
                 label: 'English',
-                locale: const Locale('en'),
+                locale: LocaleProvider.localeEn,
               ),
               const SizedBox(height: AppSpacing.md),
               _LanguageOption(
                 label: '繁體中文',
-                locale: const Locale('zh'),
+                locale: LocaleProvider.localeZh,
               ),
             ],
           ),

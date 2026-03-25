@@ -8,6 +8,8 @@ class LocaleProvider extends ChangeNotifier {
   bool _isLoaded = false;
 
   static const defaultLocale = Locale('en');
+  static const localeEn = Locale('en');
+  static const localeZh = Locale('zh');
 
   Locale? get locale => _locale;
   Locale get effectiveLocale => _locale ?? defaultLocale;
