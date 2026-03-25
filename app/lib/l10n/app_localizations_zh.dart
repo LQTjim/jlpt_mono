@@ -31,4 +31,28 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get continueButton => '繼續';
+
+  @override
+  String get tabHome => '首頁';
+
+  @override
+  String get tabVocabulary => '單字';
+
+  @override
+  String get tabQuiz => '測驗';
+
+  @override
+  String get tabProfile => '我的';
+
+  @override
+  String get profileTitle => '我的';
+
+  @override
+  String get language => '語言';
+
+  @override
+  String get jlptTargetLevel => 'JLPT 目標等級';
+
+  @override
+  String get comingSoon => '即將推出';
 }

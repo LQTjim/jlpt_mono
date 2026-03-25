@@ -31,4 +31,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get continueButton => 'Continue';
+
+  @override
+  String get tabHome => 'Home';
+
+  @override
+  String get tabVocabulary => 'Vocabulary';
+
+  @override
+  String get tabQuiz => 'Quiz';
+
+  @override
+  String get tabProfile => 'Profile';
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get jlptTargetLevel => 'JLPT Target Level';
+
+  @override
+  String get comingSoon => 'Coming Soon';
 }

@@ -7,5 +7,13 @@
   "selectLanguage": "Select Language",
   "languageEnglish": "English",
   "languageChinese": "繁體中文",
-  "continueButton": "Continue"
+  "continueButton": "Continue",
+  "tabHome": "Home",
+  "tabVocabulary": "Vocabulary",
+  "tabQuiz": "Quiz",
+  "tabProfile": "Profile",
+  "profileTitle": "Profile",
+  "language": "Language",
+  "jlptTargetLevel": "JLPT Target Level",
+  "comingSoon": "Coming Soon"
 }

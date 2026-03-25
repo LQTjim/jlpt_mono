@@ -3,10 +3,11 @@ import 'package:provider/provider.dart';
 
 import 'l10n/app_localizations.dart';
 import 'providers/auth_provider.dart';
+import 'providers/jlpt_level_provider.dart';
 import 'providers/locale_provider.dart';
-import 'screens/home_screen.dart';
 import 'screens/language_selection_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/main_shell.dart';
 import 'theme/app_theme.dart';
 import 'widgets/debug_overlay.dart';
 
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
+        ChangeNotifierProvider(create: (_) => JlptLevelProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()..tryAutoLogin()),
       ],
       child: Consumer<LocaleProvider>(
@@ -58,7 +60,7 @@ class MyApp extends StatelessWidget {
             body: Center(child: CircularProgressIndicator()),
           );
         }
-        return auth.isAuthenticated ? const HomeScreen() : const LoginScreen();
+        return auth.isAuthenticated ? const MainShell() : const LoginScreen();
       },
     );
   }

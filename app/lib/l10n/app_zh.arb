@@ -7,5 +7,13 @@
   "selectLanguage": "選擇語言",
   "languageEnglish": "English",
   "languageChinese": "繁體中文",
-  "continueButton": "繼續"
+  "continueButton": "繼續",
+  "tabHome": "首頁",
+  "tabVocabulary": "單字",
+  "tabQuiz": "測驗",
+  "tabProfile": "我的",
+  "profileTitle": "我的",
+  "language": "語言",
+  "jlptTargetLevel": "JLPT 目標等級",
+  "comingSoon": "即將推出"
 }
