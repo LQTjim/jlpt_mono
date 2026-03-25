@@ -1,0 +1,11 @@
+{
+  "@@locale": "en",
+  "appTitle": "JLPT Mono",
+  "signInWithGoogle": "Sign in with Google",
+  "welcomeMessage": "Welcome to JLPT Mono",
+  "logout": "Log out",
+  "selectLanguage": "Select Language",
+  "languageEnglish": "English",
+  "languageChinese": "繁體中文",
+  "continueButton": "Continue"
+}
