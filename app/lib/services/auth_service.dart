@@ -61,10 +61,6 @@ class AuthService {
     return await _storage.read(key: _accessTokenKey);
   }
 
-  Future<String?> getRefreshToken() async {
-    return await _storage.read(key: _refreshTokenKey);
-  }
-
   Future<bool> refreshAccessToken() async {
     // If a refresh is already in progress, wait for it instead of sending another request
     if (_refreshCompleter != null) {

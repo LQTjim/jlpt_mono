@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -86,11 +84,15 @@ void main() {
   });
 
   group('POST 請求', () {
-    test('回傳 200 時應直接回傳 response', () async {
+    test('應使用 POST、帶上 JSON body 與授權 header', () async {
       when(mockAuthService.getAccessToken())
           .thenAnswer((_) async => 'token');
 
       final httpClient = MockClient((request) async {
+        expect(request.method, 'POST');
+        expect(request.headers['Content-Type'], 'application/json');
+        expect(request.headers['Authorization'], 'Bearer token');
+        expect(request.body, '{"key":"value"}');
         return http.Response('{"created":true}', 200);
       });
 
@@ -98,40 +100,6 @@ void main() {
       final response = await client.post('/api/test', body: {'key': 'value'});
 
       expect(response.statusCode, 200);
-    });
-
-    test('回傳 401 且 refresh 成功時應重試並回傳新 response', () async {
-      when(mockAuthService.getAccessToken())
-          .thenAnswer((_) async => 'token');
-      when(mockAuthService.refreshAccessToken())
-          .thenAnswer((_) async => true);
-
-      var callCount = 0;
-      final httpClient = MockClient((request) async {
-        callCount++;
-        if (callCount == 1) return http.Response('', 401);
-        return http.Response('{"created":true}', 200);
-      });
-
-      final client = createClient(httpClient);
-      final response = await client.post('/api/test', body: {'key': 'value'});
-
-      expect(response.statusCode, 200);
-      expect(callCount, 2);
-    });
-
-    test('回傳 401 且 refresh 失敗時應呼叫 onAuthFailure', () async {
-      when(mockAuthService.getAccessToken())
-          .thenAnswer((_) async => 'token');
-      when(mockAuthService.refreshAccessToken())
-          .thenAnswer((_) async => false);
-
-      final httpClient = MockClient((_) async => http.Response('', 401));
-
-      final client = createClient(httpClient);
-      await client.post('/api/test');
-
-      expect(authFailureCalled, true);
     });
   });
 

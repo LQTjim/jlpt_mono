@@ -1,23 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
+import '../providers/locale_provider.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_typography.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final locale = context.watch<LocaleProvider>().effectiveLocale;
     final auth = context.watch<AuthProvider>();
     final user = auth.user!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('JLPT Mono'),
+        title: Text(l10n.appTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => auth.signOut(),
+            tooltip: l10n.logout,
           ),
         ],
       ),
@@ -30,19 +37,11 @@ class HomeScreen extends StatelessWidget {
                 radius: 40,
                 backgroundImage: NetworkImage(user.pictureUrl!),
               ),
-            const SizedBox(height: 16),
-            Text(
-              user.name,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              user.email,
-              style: const TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-            Text(
-              'Welcome to JLPT Mono',
-            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(user.name, style: AppTypography.headingMedium(locale)),
+            const SizedBox(height: AppSpacing.sm),
+            Text(user.email, style: AppTypography.bodyMedium(locale)),
+            Text(l10n.welcomeMessage, style: AppTypography.bodyLarge(locale)),
           ],
         ),
       ),
