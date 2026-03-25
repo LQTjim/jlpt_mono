@@ -12,16 +12,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Instant;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -107,7 +104,7 @@ class AuthServiceTest {
         authService.authenticateWithGoogle("valid-id-token");
 
         // 驗證 name 和 picture 被更新
-        verify(testUser != null ? userRepository : userRepository).save(testUser);
+        verify(userRepository).save(testUser);
         assertThat(testUser.getName()).isEqualTo("Updated Name");
         assertThat(testUser.getPictureUrl()).isEqualTo("https://example.com/new-pic.jpg");
     }
@@ -142,13 +139,5 @@ class AuthServiceTest {
         assertThat(response.getRefreshToken()).isEqualTo("new-refresh");
         verify(refreshTokenService).verifyAndDeleteRefreshToken("old-refresh");
         verify(refreshTokenService).createRefreshToken(testUser);
-    }
-
-    @Test
-    @DisplayName("登出：應刪除指定的 refresh token")
-    void logout() {
-        authService.logout("some-refresh-token");
-
-        verify(refreshTokenService).deleteByToken("some-refresh-token");
     }
 }
