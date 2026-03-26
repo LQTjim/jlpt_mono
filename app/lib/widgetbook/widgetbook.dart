@@ -6,6 +6,12 @@ import '../theme/app_spacing.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_typography.dart';
 import '../widgets/app_button.dart';
+import '../widgets/quiz_history_tile.dart';
+import '../widgets/quiz_option_card.dart';
+import '../widgets/quiz_progress_bar.dart';
+import '../widgets/quiz_result_card.dart';
+import '../widgets/quiz_settings_panel.dart';
+import '../widgets/score_ring.dart';
 
 void main() {
   runApp(const WidgetbookApp());
@@ -70,6 +76,35 @@ class WidgetbookApp extends StatelessWidget {
             WidgetbookComponent(name: 'AppIconTextButton', useCases: [
               WidgetbookUseCase(
                   name: 'Examples', builder: (_) => const _IconTextButtonShowcase()),
+            ]),
+          ],
+        ),
+        WidgetbookCategory(
+          name: 'Quiz',
+          children: [
+            WidgetbookComponent(name: 'QuizOptionCard', useCases: [
+              WidgetbookUseCase(
+                  name: 'States', builder: (_) => const _QuizOptionCardShowcase()),
+            ]),
+            WidgetbookComponent(name: 'QuizProgressBar', useCases: [
+              WidgetbookUseCase(
+                  name: 'Progress', builder: (_) => const _QuizProgressBarShowcase()),
+            ]),
+            WidgetbookComponent(name: 'ScoreRing', useCases: [
+              WidgetbookUseCase(
+                  name: 'Scores', builder: (_) => const _ScoreRingShowcase()),
+            ]),
+            WidgetbookComponent(name: 'QuizResultCard', useCases: [
+              WidgetbookUseCase(
+                  name: 'States', builder: (_) => const _QuizResultCardShowcase()),
+            ]),
+            WidgetbookComponent(name: 'QuizSettingsPanel', useCases: [
+              WidgetbookUseCase(
+                  name: 'Interactive', builder: (_) => const _QuizSettingsPanelShowcase()),
+            ]),
+            WidgetbookComponent(name: 'QuizHistoryTile', useCases: [
+              WidgetbookUseCase(
+                  name: 'Examples', builder: (_) => const _QuizHistoryTileShowcase()),
             ]),
           ],
         ),
@@ -412,6 +447,251 @@ class _ButtonShowcase extends StatelessWidget {
             width: double.infinity,
             child: AppButton(label: 'BACK TO DASHBOARD', variant: AppButtonVariant.text, onPressed: () {}),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Quiz Option Card Showcase
+// ---------------------------------------------------------------------------
+
+class _QuizOptionCardShowcase extends StatefulWidget {
+  const _QuizOptionCardShowcase();
+
+  @override
+  State<_QuizOptionCardShowcase> createState() =>
+      _QuizOptionCardShowcaseState();
+}
+
+class _QuizOptionCardShowcaseState extends State<_QuizOptionCardShowcase> {
+  String? _selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final options = [
+      ('A', '吃'),
+      ('B', '喝'),
+      ('C', '玩'),
+      ('D', '跑'),
+    ];
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Interactive',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          ...options.map((o) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: QuizOptionCard(
+                  label: o.$1,
+                  text: o.$2,
+                  state: _selected == o.$1
+                      ? QuizOptionState.selected
+                      : QuizOptionState.idle,
+                  onTap: () => setState(() => _selected = o.$1),
+                ),
+              )),
+          const SizedBox(height: 24),
+          const Text('Japanese Word Options',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          const QuizOptionCard(
+              label: 'A', text: '食べる (たべる)', state: QuizOptionState.idle),
+          const SizedBox(height: 8),
+          const QuizOptionCard(
+              label: 'B',
+              text: '飲む (のむ)',
+              state: QuizOptionState.selected),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Quiz Progress Bar Showcase
+// ---------------------------------------------------------------------------
+
+class _QuizProgressBarShowcase extends StatelessWidget {
+  const _QuizProgressBarShowcase();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Progress States',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          ...[1, 3, 5, 8, 10].map((i) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Q$i / 10',
+                        style: const TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 4),
+                    QuizProgressBar(current: i, total: 10),
+                  ],
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Score Ring Showcase
+// ---------------------------------------------------------------------------
+
+class _ScoreRingShowcase extends StatelessWidget {
+  const _ScoreRingShowcase();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          const Text('Score Ring Sizes',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 24),
+          const ScoreRing(score: 8, total: 10, size: 180),
+          const SizedBox(height: 32),
+          Wrap(
+            spacing: 24,
+            runSpacing: 24,
+            alignment: WrapAlignment.center,
+            children: [
+              const ScoreRing(score: 10, total: 10, size: 100),
+              const ScoreRing(score: 5, total: 10, size: 100),
+              const ScoreRing(score: 2, total: 10, size: 100),
+              const ScoreRing(score: 0, total: 10, size: 100),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Quiz Result Card Showcase
+// ---------------------------------------------------------------------------
+
+class _QuizResultCardShowcase extends StatelessWidget {
+  const _QuizResultCardShowcase();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Result States',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          const QuizResultCard(
+            questionNumber: 1,
+            questionText: '食べる → ?',
+            correctAnswer: '吃',
+            state: QuizResultState.correct,
+          ),
+          const SizedBox(height: 8),
+          const QuizResultCard(
+            questionNumber: 2,
+            questionText: '飲む → ?',
+            userAnswer: '吃',
+            correctAnswer: '喝',
+            state: QuizResultState.incorrect,
+          ),
+          const SizedBox(height: 8),
+          const QuizResultCard(
+            questionNumber: 3,
+            questionText: '朝ごはんを＿＿＿。',
+            correctAnswer: '食べる',
+            state: QuizResultState.skipped,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Quiz Settings Panel Showcase
+// ---------------------------------------------------------------------------
+
+class _QuizSettingsPanelShowcase extends StatefulWidget {
+  const _QuizSettingsPanelShowcase();
+
+  @override
+  State<_QuizSettingsPanelShowcase> createState() =>
+      _QuizSettingsPanelShowcaseState();
+}
+
+class _QuizSettingsPanelShowcaseState
+    extends State<_QuizSettingsPanelShowcase> {
+  String _level = 'N5';
+  Set<QuestionType> _types = {
+    QuestionType.meaning,
+    QuestionType.reverse,
+    QuestionType.sentenceFill,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: QuizSettingsPanel(
+        selectedLevel: _level,
+        selectedTypes: _types,
+        onLevelChanged: (v) => setState(() => _level = v),
+        onTypesChanged: (v) => setState(() => _types = v),
+        onStart: () {},
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Quiz History Tile Showcase
+// ---------------------------------------------------------------------------
+
+class _QuizHistoryTileShowcase extends StatelessWidget {
+  const _QuizHistoryTileShowcase();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Recent Scores',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          const QuizHistoryTile(
+              date: '3/26', jlptLevel: 'N5', score: 9, total: 10),
+          const SizedBox(height: 8),
+          const QuizHistoryTile(
+              date: '3/25', jlptLevel: 'N4', score: 7, total: 10),
+          const SizedBox(height: 8),
+          const QuizHistoryTile(
+              date: '3/24', jlptLevel: 'N5', score: 4, total: 10),
+          const SizedBox(height: 8),
+          const QuizHistoryTile(
+              date: '3/23', jlptLevel: 'N3', score: 10, total: 10),
         ],
       ),
     );
