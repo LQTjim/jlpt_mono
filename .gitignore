@@ -41,6 +41,12 @@ application-local.properties
 # Generated
 HELP.md
 
+# Flutter - Generated l10n
+app/lib/l10n/app_localizations*.dart
+
+# Dart - Generated mocks (build_runner / mockito)
+app/test/**/*.mocks.dart
+
 # Flutter / Dart
 .dart_tool/
 .flutter-plugins
