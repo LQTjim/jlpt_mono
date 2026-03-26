@@ -8,17 +8,17 @@ import '../services/auth_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService;
-  late final ApiClient _apiClient;
+  final ApiClient _apiClient;
 
   User? _user;
   bool _isLoading = false;
   String? _error;
 
-  AuthProvider({AuthService? authService, ApiClient? apiClient})
-      : _authService = authService ?? AuthService() {
-    _apiClient =
-        apiClient ?? ApiClient(_authService, onAuthFailure: signOut);
-  }
+  AuthProvider({
+    required AuthService authService,
+    required ApiClient apiClient,
+  })  : _authService = authService,
+        _apiClient = apiClient;
 
   User? get user => _user;
   bool get isLoading => _isLoading;

@@ -15,5 +15,15 @@
   "profileTitle": "Profile",
   "language": "Language",
   "jlptTargetLevel": "JLPT Target Level",
-  "comingSoon": "Coming Soon"
+  "comingSoon": "Coming Soon",
+  "searchHint": "Search words...",
+  "allLevels": "All Levels",
+  "noWordsFound": "No words found",
+  "examples": "Examples",
+  "relatedWords": "Related Words",
+  "synonym": "Synonym",
+  "antonym": "Antonym",
+  "related": "Related",
+  "retry": "Retry",
+  "errorLoadingWords": "Failed to load words"
 }

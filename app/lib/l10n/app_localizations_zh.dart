@@ -55,4 +55,34 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get comingSoon => '即將推出';
+
+  @override
+  String get searchHint => '搜尋單字...';
+
+  @override
+  String get allLevels => '全部等級';
+
+  @override
+  String get noWordsFound => '找不到單字';
+
+  @override
+  String get examples => '例句';
+
+  @override
+  String get relatedWords => '關聯詞';
+
+  @override
+  String get synonym => '同義詞';
+
+  @override
+  String get antonym => '反義詞';
+
+  @override
+  String get related => '相關';
+
+  @override
+  String get retry => '重試';
+
+  @override
+  String get errorLoadingWords => '載入單字失敗';
 }

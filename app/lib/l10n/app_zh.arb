@@ -15,5 +15,15 @@
   "profileTitle": "我的",
   "language": "語言",
   "jlptTargetLevel": "JLPT 目標等級",
-  "comingSoon": "即將推出"
+  "comingSoon": "即將推出",
+  "searchHint": "搜尋單字...",
+  "allLevels": "全部等級",
+  "noWordsFound": "找不到單字",
+  "examples": "例句",
+  "relatedWords": "關聯詞",
+  "synonym": "同義詞",
+  "antonym": "反義詞",
+  "related": "相關",
+  "retry": "重試",
+  "errorLoadingWords": "載入單字失敗"
 }

@@ -193,6 +193,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Coming Soon'**
   String get comingSoon;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search words...'**
+  String get searchHint;
+
+  /// No description provided for @allLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'All Levels'**
+  String get allLevels;
+
+  /// No description provided for @noWordsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No words found'**
+  String get noWordsFound;
+
+  /// No description provided for @examples.
+  ///
+  /// In en, this message translates to:
+  /// **'Examples'**
+  String get examples;
+
+  /// No description provided for @relatedWords.
+  ///
+  /// In en, this message translates to:
+  /// **'Related Words'**
+  String get relatedWords;
+
+  /// No description provided for @synonym.
+  ///
+  /// In en, this message translates to:
+  /// **'Synonym'**
+  String get synonym;
+
+  /// No description provided for @antonym.
+  ///
+  /// In en, this message translates to:
+  /// **'Antonym'**
+  String get antonym;
+
+  /// No description provided for @related.
+  ///
+  /// In en, this message translates to:
+  /// **'Related'**
+  String get related;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @errorLoadingWords.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load words'**
+  String get errorLoadingWords;
 }
 
 class _AppLocalizationsDelegate

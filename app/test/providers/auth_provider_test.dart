@@ -14,6 +14,14 @@ import 'package:app/models/user.dart';
 @GenerateMocks([AuthService])
 import 'auth_provider_test.mocks.dart';
 
+ApiClient _dummyApiClient(MockAuthService mockAuthService) {
+  return ApiClient(
+    mockAuthService,
+    onAuthFailure: () async {},
+    httpClient: MockClient((_) async => http.Response('', 404)),
+  );
+}
+
 void main() {
   late MockAuthService mockAuthService;
 
@@ -26,7 +34,7 @@ void main() {
       final user = User(email: 'test@example.com', name: 'Test User');
       when(mockAuthService.signInWithGoogle()).thenAnswer((_) async => user);
 
-      final provider = AuthProvider(authService: mockAuthService);
+      final provider = AuthProvider(authService: mockAuthService, apiClient: _dummyApiClient(mockAuthService));
 
       // 追蹤 isLoading 變化
       final loadingStates = <bool>[];
@@ -47,7 +55,7 @@ void main() {
       when(mockAuthService.signInWithGoogle())
           .thenThrow(Exception('Sign-in failed'));
 
-      final provider = AuthProvider(authService: mockAuthService);
+      final provider = AuthProvider(authService: mockAuthService, apiClient: _dummyApiClient(mockAuthService));
       await provider.signInWithGoogle();
 
       expect(provider.isAuthenticated, false);
@@ -96,7 +104,7 @@ void main() {
     test('無 token 時 isAuthenticated 應為 false', () async {
       when(mockAuthService.isLoggedIn()).thenAnswer((_) async => false);
 
-      final provider = AuthProvider(authService: mockAuthService);
+      final provider = AuthProvider(authService: mockAuthService, apiClient: _dummyApiClient(mockAuthService));
       await provider.tryAutoLogin();
 
       expect(provider.isAuthenticated, false);
@@ -139,7 +147,7 @@ void main() {
       when(mockAuthService.signInWithGoogle()).thenAnswer((_) async => user);
       when(mockAuthService.signOut()).thenAnswer((_) async {});
 
-      final provider = AuthProvider(authService: mockAuthService);
+      final provider = AuthProvider(authService: mockAuthService, apiClient: _dummyApiClient(mockAuthService));
       await provider.signInWithGoogle();
       expect(provider.isAuthenticated, true);
 

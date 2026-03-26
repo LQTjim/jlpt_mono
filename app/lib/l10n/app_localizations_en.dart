@@ -55,4 +55,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get comingSoon => 'Coming Soon';
+
+  @override
+  String get searchHint => 'Search words...';
+
+  @override
+  String get allLevels => 'All Levels';
+
+  @override
+  String get noWordsFound => 'No words found';
+
+  @override
+  String get examples => 'Examples';
+
+  @override
+  String get relatedWords => 'Related Words';
+
+  @override
+  String get synonym => 'Synonym';
+
+  @override
+  String get antonym => 'Antonym';
+
+  @override
+  String get related => 'Related';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get errorLoadingWords => 'Failed to load words';
 }
