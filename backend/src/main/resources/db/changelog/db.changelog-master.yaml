@@ -112,3 +112,11 @@ databaseChangeLog:
         - sqlFile:
             path: db/changelog/004-seed-vocabulary-data.sql
             relativeToChangelogFile: false
+
+  - changeSet:
+      id: 005-create-quiz-tables
+      author: ktlin
+      changes:
+        - sqlFile:
+            path: db/changelog/005-create-quiz-tables.sql
+            relativeToChangelogFile: false
