@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'l10n/app_localizations.dart';
 import 'providers/auth_provider.dart';
+import 'providers/dashboard_provider.dart';
 import 'providers/jlpt_level_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/quiz_provider.dart';
@@ -12,6 +13,7 @@ import 'screens/login_screen.dart';
 import 'screens/main_shell.dart';
 import 'services/api_client.dart';
 import 'services/auth_service.dart';
+import 'services/dashboard_service.dart';
 import 'services/quiz_service.dart';
 import 'services/vocabulary_service.dart';
 import 'theme/app_theme.dart';
@@ -57,6 +59,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => QuizProvider(QuizService(apiClient)),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => DashboardProvider(DashboardService(apiClient)),
         ),
       ],
       child: Consumer<LocaleProvider>(

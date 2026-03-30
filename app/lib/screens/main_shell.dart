@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
-import 'placeholder_screen.dart';
+import 'home_screen.dart';
 import 'profile_screen.dart';
 import 'quiz_home_screen.dart';
 import 'vocabulary_list_screen.dart';
@@ -23,7 +23,7 @@ class _MainShellState extends State<MainShell> {
     final l10n = AppLocalizations.of(context)!;
 
     final pages = [
-      PlaceholderScreen(title: l10n.tabHome),
+      HomeScreen(onNavigateToTab: (i) => setState(() => _currentIndex = i)),
       const VocabularyListScreen(),
       const QuizHomeScreen(),
       const ProfileScreen(),

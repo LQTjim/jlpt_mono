@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
+import '../utils/date_utils.dart' show formatMonthDay;
 import '../providers/jlpt_level_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/quiz_provider.dart';
@@ -109,7 +110,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
           )
         else
           ...quiz.history.map((h) {
-            final date = _formatDate(h.completedAt);
+            final date = formatMonthDay(h.completedAt);
             return Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.sm),
               child: QuizHistoryTile(
@@ -153,9 +154,4 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
     }
   }
 
-  String _formatDate(String iso) {
-    final dt = DateTime.tryParse(iso);
-    if (dt == null) return iso;
-    return '${dt.month}/${dt.day}';
-  }
 }
