@@ -50,7 +50,7 @@ class QuizControllerTest {
     void startQuiz_unauthenticated() throws Exception {
         mockMvc.perform(post("/api/quiz/start")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"jlptLevel\":\"N5\",\"questionTypes\":[\"MEANING\"]}"))
+                        .content("{\"jlptLevel\":\"N5\",\"questionType\":\"MEANING\",\"locale\":\"zh\"}"))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -84,7 +84,7 @@ class QuizControllerTest {
         mockMvc.perform(post("/api/quiz/start")
                         .header("Authorization", "Bearer valid-jwt")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"jlptLevel\":\"N5\",\"questionTypes\":[\"MEANING\"]}"))
+                        .content("{\"jlptLevel\":\"N5\",\"questionType\":\"MEANING\",\"locale\":\"zh\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sessionId").value(1))
                 .andExpect(jsonPath("$.questions[0].type").value("MEANING"))
@@ -176,7 +176,7 @@ class QuizControllerTest {
         mockMvc.perform(post("/api/quiz/start")
                         .header("Authorization", "Bearer valid-jwt")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"jlptLevel\":\"N9\",\"questionTypes\":[\"MEANING\"]}"))
+                        .content("{\"jlptLevel\":\"N9\",\"questionType\":\"MEANING\",\"locale\":\"zh\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("bad_request"));
     }
@@ -188,19 +188,19 @@ class QuizControllerTest {
         mockMvc.perform(post("/api/quiz/start")
                         .header("Authorization", "Bearer valid-jwt")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"jlptLevel\":\"N5\",\"questionTypes\":[\"FOO\"]}"))
+                        .content("{\"jlptLevel\":\"N5\",\"questionType\":\"FOO\",\"locale\":\"zh\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("bad_request"));
     }
 
     @Test
-    @DisplayName("POST /api/quiz/start questionTypes 含 null 應回傳 400")
-    void startQuiz_nullQuestionType() throws Exception {
+    @DisplayName("POST /api/quiz/start 缺少 questionType 應回傳 400")
+    void startQuiz_missingQuestionType() throws Exception {
         setupAuth();
         mockMvc.perform(post("/api/quiz/start")
                         .header("Authorization", "Bearer valid-jwt")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"jlptLevel\":\"N5\",\"questionTypes\":[null]}"))
+                        .content("{\"jlptLevel\":\"N5\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("bad_request"));
     }

@@ -25,5 +25,35 @@
   "antonym": "反義詞",
   "related": "相關",
   "retry": "重試",
-  "errorLoadingWords": "載入單字失敗"
+  "errorLoadingWords": "載入單字失敗",
+  "quizTitle": "測驗",
+  "startQuiz": "開始測驗",
+  "recentScores": "最近成績",
+  "noQuizHistory": "尚無測驗紀錄",
+  "quizResult": "測驗結果",
+  "skip": "跳過",
+  "questionLabel": "Q{current} / {total}",
+  "@questionLabel": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "meaningPrompt": "這個詞的意思是？",
+  "reversePrompt": "哪個詞符合這個意思？",
+  "sentenceFillPrompt": "填入空格",
+  "confirmQuit": "確定要離開？",
+  "confirmQuitMessage": "你的作答進度將會遺失。",
+  "cancel": "取消",
+  "confirm": "確定",
+  "retryQuiz": "再來一次",
+  "backToHome": "回到首頁",
+  "questionTypeMeaning": "詞義選擇",
+  "questionTypeReverse": "反向選擇",
+  "questionTypeSentenceFill": "例句填空",
+  "jlptLevel": "JLPT 等級",
+  "questionType": "題型",
+  "yourAnswer": "你的答案: ",
+  "correctAnswerLabel": "正解: ",
+  "skippedLabel": "跳過  正解: "
 }

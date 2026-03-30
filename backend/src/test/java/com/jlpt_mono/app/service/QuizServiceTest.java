@@ -94,12 +94,6 @@ class QuizServiceTest {
         when(wordRepository.findRandomDistractors(eq("N5"), anyLong(), eq(3)))
                 .thenReturn(distractors);
 
-        when(quizSessionRepository.save(any(QuizSession.class)))
-                .thenAnswer(invocation -> {
-                    QuizSession s = invocation.getArgument(0);
-                    if (s.getId() == null) s.setId(1L);
-                    return s;
-                });
         when(quizSessionRepository.saveAndFlush(any(QuizSession.class)))
                 .thenAnswer(invocation -> {
                     QuizSession s = invocation.getArgument(0);
@@ -113,7 +107,8 @@ class QuizServiceTest {
 
         QuizStartRequest request = new QuizStartRequest();
         request.setJlptLevel("N5");
-        request.setQuestionTypes(List.of("MEANING"));
+        request.setQuestionType("MEANING");
+        request.setLocale("zh");
 
         QuizStartResponse response = quizService.startQuiz(1L, request);
 
@@ -136,7 +131,8 @@ class QuizServiceTest {
 
         QuizStartRequest request = new QuizStartRequest();
         request.setJlptLevel("N5");
-        request.setQuestionTypes(List.of("MEANING"));
+        request.setQuestionType("MEANING");
+        request.setLocale("zh");
 
         assertThatThrownBy(() -> quizService.startQuiz(999L, request))
                 .isInstanceOf(ResourceNotFoundException.class)
@@ -263,28 +259,25 @@ class QuizServiceTest {
     }
 
     @Test
-    @DisplayName("開始測驗：混合題型應均勻分配")
-    void startQuiz_mixedTypes() {
+    @DisplayName("開始測驗：SENTENCE_FILL 應使用有例句的單字")
+    void startQuiz_sentenceFill() {
         User user = createTestUser();
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-        List<Word> regularWords = List.of(
+        List<Word> sentenceWords = List.of(
                 createTestWord(1L, "食べる", "たべる", "吃"),
                 createTestWord(2L, "飲む", "のむ", "喝"),
                 createTestWord(3L, "走る", "はしる", "跑"),
                 createTestWord(4L, "読む", "よむ", "讀"),
                 createTestWord(5L, "書く", "かく", "寫"),
                 createTestWord(6L, "見る", "みる", "看"),
-                createTestWord(7L, "聞く", "きく", "聽")
-        );
-        List<Word> sentenceWords = List.of(
+                createTestWord(7L, "聞く", "きく", "聽"),
                 createTestWord(8L, "話す", "はなす", "說"),
                 createTestWord(9L, "歩く", "あるく", "走"),
                 createTestWord(10L, "泳ぐ", "およぐ", "游泳")
         );
 
-        when(wordRepository.findRandomWithExamplesByJlptLevel("N5", 3)).thenReturn(sentenceWords);
-        when(wordRepository.findRandomByJlptLevelExcluding(eq("N5"), anyList(), eq(7))).thenReturn(regularWords);
+        when(wordRepository.findRandomWithExamplesByJlptLevel("N5", 10)).thenReturn(sentenceWords);
 
         Example example = new Example();
         example.setId(1L);
@@ -299,12 +292,6 @@ class QuizServiceTest {
                         createTestWord(13L, "遊ぶ", "あそぶ", "玩")
                 ));
 
-        when(quizSessionRepository.save(any(QuizSession.class)))
-                .thenAnswer(invocation -> {
-                    QuizSession s = invocation.getArgument(0);
-                    if (s.getId() == null) s.setId(1L);
-                    return s;
-                });
         when(quizSessionRepository.saveAndFlush(any(QuizSession.class)))
                 .thenAnswer(invocation -> {
                     QuizSession s = invocation.getArgument(0);
@@ -318,21 +305,14 @@ class QuizServiceTest {
 
         QuizStartRequest request = new QuizStartRequest();
         request.setJlptLevel("N5");
-        request.setQuestionTypes(List.of("MEANING", "REVERSE", "SENTENCE_FILL"));
+        request.setQuestionType("SENTENCE_FILL");
+        request.setLocale("zh");
 
         QuizStartResponse response = quizService.startQuiz(1L, request);
 
         assertThat(response.getQuestions()).hasSize(10);
-
-        // Count types — should be approximately evenly distributed (4+3+3 or 3+4+3 etc.)
-        long meaningCount = response.getQuestions().stream().filter(q -> "MEANING".equals(q.getType())).count();
-        long reverseCount = response.getQuestions().stream().filter(q -> "REVERSE".equals(q.getType())).count();
-        long sentenceCount = response.getQuestions().stream().filter(q -> "SENTENCE_FILL".equals(q.getType())).count();
-
-        assertThat(meaningCount + reverseCount + sentenceCount).isEqualTo(10);
-        assertThat(meaningCount).isBetween(3L, 4L);
-        assertThat(reverseCount).isBetween(3L, 4L);
-        assertThat(sentenceCount).isBetween(3L, 4L);
+        // All questions should be SENTENCE_FILL
+        assertThat(response.getQuestions()).allMatch(q -> "SENTENCE_FILL".equals(q.getType()));
     }
 
     @Test

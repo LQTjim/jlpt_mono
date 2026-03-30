@@ -17,10 +17,10 @@ import java.util.List;
 public class QuizSession {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)// 自增主键
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)// 懒加载 預設是EAGER 會把user全部加載進來
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

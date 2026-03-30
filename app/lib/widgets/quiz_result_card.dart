@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
@@ -23,6 +24,8 @@ class QuizResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return ClipRRect(
       borderRadius: AppSpacing.radiusMd,
       child: Container(
@@ -47,7 +50,7 @@ class QuizResultCard extends StatelessWidget {
                         child: Icon(_icon, color: _accentColor, size: 24),
                       ),
                       const SizedBox(width: AppSpacing.sm),
-                      Expanded(child: _buildContent()),
+                      Expanded(child: _buildContent(l10n)),
                     ],
                   ),
                 ),
@@ -59,7 +62,7 @@ class QuizResultCard extends StatelessWidget {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -83,10 +86,10 @@ class QuizResultCard extends StatelessWidget {
         if (state == QuizResultState.incorrect) ...[
           Text.rich(
             TextSpan(children: [
-              const TextSpan(
-                text: '你的答案: ',
-                style:
-                    TextStyle(fontSize: 13, color: AppColors.textSecondary),
+              TextSpan(
+                text: l10n.yourAnswer,
+                style: const TextStyle(
+                    fontSize: 13, color: AppColors.textSecondary),
               ),
               TextSpan(
                 text: userAnswer ?? '',
@@ -102,10 +105,10 @@ class QuizResultCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text.rich(
             TextSpan(children: [
-              const TextSpan(
-                text: '正解: ',
-                style:
-                    TextStyle(fontSize: 13, color: AppColors.textSecondary),
+              TextSpan(
+                text: l10n.correctAnswerLabel,
+                style: const TextStyle(
+                    fontSize: 13, color: AppColors.textSecondary),
               ),
               TextSpan(
                 text: correctAnswer,
@@ -121,10 +124,10 @@ class QuizResultCard extends StatelessWidget {
         if (state == QuizResultState.skipped)
           Text.rich(
             TextSpan(children: [
-              const TextSpan(
-                text: '跳過  正解: ',
-                style:
-                    TextStyle(fontSize: 13, color: AppColors.textSecondary),
+              TextSpan(
+                text: l10n.skippedLabel,
+                style: const TextStyle(
+                    fontSize: 13, color: AppColors.textSecondary),
               ),
               TextSpan(
                 text: correctAnswer,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:widgetbook/widgetbook.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_theme.dart';
@@ -24,6 +26,18 @@ class WidgetbookApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Widgetbook.material(
       themeMode: ThemeMode.light,
+      appBuilder: (context, child) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Material(child: child),
+      ),
       addons: [
         ThemeAddon(
           themes: [WidgetbookTheme(name: 'Light', data: AppTheme.light)],
@@ -643,11 +657,7 @@ class _QuizSettingsPanelShowcase extends StatefulWidget {
 class _QuizSettingsPanelShowcaseState
     extends State<_QuizSettingsPanelShowcase> {
   String _level = 'N5';
-  Set<QuestionType> _types = {
-    QuestionType.meaning,
-    QuestionType.reverse,
-    QuestionType.sentenceFill,
-  };
+  QuestionType _type = QuestionType.meaning;
 
   @override
   Widget build(BuildContext context) {
@@ -655,10 +665,9 @@ class _QuizSettingsPanelShowcaseState
       padding: const EdgeInsets.all(16),
       child: QuizSettingsPanel(
         selectedLevel: _level,
-        selectedTypes: _types,
+        selectedType: _type,
         onLevelChanged: (v) => setState(() => _level = v),
-        onTypesChanged: (v) => setState(() => _types = v),
-        onStart: () {},
+        onTypeChanged: (v) => setState(() => _type = v),
       ),
     );
   }

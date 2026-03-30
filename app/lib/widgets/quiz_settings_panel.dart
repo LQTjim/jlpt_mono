@@ -1,31 +1,31 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
-import 'app_button.dart';
 
 enum QuestionType { meaning, reverse, sentenceFill }
 
 class QuizSettingsPanel extends StatelessWidget {
   final String selectedLevel;
-  final Set<QuestionType> selectedTypes;
+  final QuestionType selectedType;
   final ValueChanged<String> onLevelChanged;
-  final ValueChanged<Set<QuestionType>> onTypesChanged;
-  final VoidCallback? onStart;
+  final ValueChanged<QuestionType> onTypeChanged;
 
   static const levels = ['N5', 'N4', 'N3', 'N2', 'N1'];
 
   const QuizSettingsPanel({
     super.key,
     required this.selectedLevel,
-    required this.selectedTypes,
+    required this.selectedType,
     required this.onLevelChanged,
-    required this.onTypesChanged,
-    this.onStart,
+    required this.onTypeChanged,
   });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
@@ -37,9 +37,9 @@ class QuizSettingsPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // JLPT Level
-          const Text(
-            'JLPT LEVEL',
-            style: TextStyle(
+          Text(
+            l10n.jlptLevel.toUpperCase(),
+            style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.5,
@@ -70,10 +70,10 @@ class QuizSettingsPanel extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
 
-          // Question types
-          const Text(
-            'QUESTION TYPES',
-            style: TextStyle(
+          // Question type
+          Text(
+            l10n.questionType.toUpperCase(),
+            style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.5,
@@ -81,44 +81,25 @@ class QuizSettingsPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
-          _buildTypeCheckbox(QuestionType.meaning, '詞義選擇'),
-          _buildTypeCheckbox(QuestionType.reverse, '反向選擇'),
-          _buildTypeCheckbox(QuestionType.sentenceFill, '例句填空'),
-          const SizedBox(height: AppSpacing.md),
-
-          // Start button
-          SizedBox(
-            width: double.infinity,
-            child: AppButton(
-              label: '開始測驗',
-              onPressed: selectedTypes.isNotEmpty ? onStart : null,
-              size: AppButtonSize.large,
-            ),
-          ),
+          _buildTypeRadio(QuestionType.meaning, l10n.questionTypeMeaning),
+          _buildTypeRadio(QuestionType.reverse, l10n.questionTypeReverse),
+          _buildTypeRadio(QuestionType.sentenceFill, l10n.questionTypeSentenceFill),
         ],
       ),
     );
   }
 
-  Widget _buildTypeCheckbox(QuestionType type, String label) {
-    final checked = selectedTypes.contains(type);
+  Widget _buildTypeRadio(QuestionType type, String label) {
+    final selected = selectedType == type;
     return InkWell(
-      onTap: () {
-        final updated = Set<QuestionType>.from(selectedTypes);
-        if (checked && updated.length > 1) {
-          updated.remove(type);
-        } else if (!checked) {
-          updated.add(type);
-        }
-        onTypesChanged(updated);
-      },
+      onTap: () => onTypeChanged(type),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
         child: Row(
           children: [
             Icon(
-              checked ? Icons.check_box : Icons.check_box_outline_blank,
-              color: checked ? AppColors.terracotta : AppColors.textHint,
+              selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+              color: selected ? AppColors.terracotta : AppColors.textHint,
               size: 22,
             ),
             const SizedBox(width: AppSpacing.sm),
@@ -126,7 +107,7 @@ class QuizSettingsPanel extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 15,
-                fontWeight: checked ? FontWeight.w600 : FontWeight.w400,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                 color: AppColors.textPrimary,
               ),
             ),

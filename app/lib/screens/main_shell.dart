@@ -5,6 +5,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import 'placeholder_screen.dart';
 import 'profile_screen.dart';
+import 'quiz_home_screen.dart';
 import 'vocabulary_list_screen.dart';
 
 class MainShell extends StatefulWidget {
@@ -24,7 +25,7 @@ class _MainShellState extends State<MainShell> {
     final pages = [
       PlaceholderScreen(title: l10n.tabHome),
       const VocabularyListScreen(),
-      PlaceholderScreen(title: l10n.tabQuiz),
+      const QuizHomeScreen(),
       const ProfileScreen(),
     ];
 

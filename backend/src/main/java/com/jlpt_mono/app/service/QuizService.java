@@ -19,6 +19,7 @@ public class QuizService {
     private static final int QUESTION_COUNT = 10;
     private static final int OPTIONS_COUNT = 4;
     private static final String[] KEYS = {"A", "B", "C", "D"};
+    private static final String BLANK = "＿＿＿";
 
     private final QuizSessionRepository quizSessionRepository;
     private final QuizQuestionRepository quizQuestionRepository;
@@ -45,73 +46,47 @@ public class QuizService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
 
         String jlptLevel = request.getJlptLevel().trim();
-        List<String> types = request.getQuestionTypes();
+        String questionType = request.getQuestionType().trim();
+        String locale = request.getLocale().trim();
+        boolean isZh = "zh".equals(locale);
 
-        // Distribute question count across types
-        List<String> questionTypeSequence = distributeTypes(types, QUESTION_COUNT);
-        Collections.shuffle(questionTypeSequence, random);
-
-        // Fetch words for each type — sentence-fill first to exclude from regular pool
-        int sentenceFillCount = (int) questionTypeSequence.stream()
-                .filter("SENTENCE_FILL"::equals).count();
-        int nonSentenceCount = QUESTION_COUNT - sentenceFillCount;
-
-        List<Word> sentenceWords = sentenceFillCount > 0
-                ? wordRepository.findRandomWithExamplesByJlptLevel(jlptLevel, sentenceFillCount)
-                : List.of();
-
-        List<Long> sentenceWordIds = sentenceWords.stream().map(Word::getId).toList();
-        List<Word> regularWords;
-        if (nonSentenceCount > 0) {
-            regularWords = sentenceWordIds.isEmpty()
-                    ? wordRepository.findRandomByJlptLevel(jlptLevel, nonSentenceCount)
-                    : wordRepository.findRandomByJlptLevelExcluding(jlptLevel, sentenceWordIds, nonSentenceCount);
+        // Fetch words
+        List<Word> words;
+        if ("SENTENCE_FILL".equals(questionType)) {
+            words = wordRepository.findRandomWithExamplesByJlptLevel(jlptLevel, QUESTION_COUNT);
         } else {
-            regularWords = List.of();
+            words = wordRepository.findRandomByJlptLevel(jlptLevel, QUESTION_COUNT);
         }
 
-        // Create session
+        // Create session (don't save yet — save once with all questions for reliable cascade)
         QuizSession session = new QuizSession();
         session.setUser(user);
         session.setJlptLevel(jlptLevel);
         session.setTotal(QUESTION_COUNT);
-        quizSessionRepository.save(session);
 
         // Build questions
-        int regularIdx = 0;
-        int sentenceIdx = 0;
         List<WordWithExample> builtQuestions = new ArrayList<>();
-
-        for (int seq = 1; seq <= questionTypeSequence.size(); seq++) {
-            String type = questionTypeSequence.get(seq - 1);
-            Word targetWord;
+        // DB round trip 多次, 若要改善需要拉多題一次查
+        for (int seq = 1; seq <= words.size(); seq++) {
+            Word targetWord = words.get(seq - 1);
             Example example = null;
 
-            if ("SENTENCE_FILL".equals(type) && sentenceIdx < sentenceWords.size()) {
-                targetWord = sentenceWords.get(sentenceIdx++);
+            if ("SENTENCE_FILL".equals(questionType)) {
                 List<Example> examples = exampleRepository.findByWordId(targetWord.getId());
                 if (!examples.isEmpty()) {
                     example = examples.get(random.nextInt(examples.size()));
                 }
-            } else if (regularIdx < regularWords.size()) {
-                targetWord = regularWords.get(regularIdx++);
-                if ("SENTENCE_FILL".equals(type)) {
-                    type = types.contains("MEANING") ? "MEANING" : "REVERSE";
-                }
-            } else {
-                break;
             }
-
-            QuizQuestion question = buildQuestion(session, seq, type, targetWord, example, jlptLevel);
+            QuizQuestion question = buildQuestion(session, seq, questionType, targetWord, example, jlptLevel, isZh);
             session.getQuestions().add(question);
             builtQuestions.add(new WordWithExample(question, targetWord, example));
         }
 
-        // Flush to assign IDs to questions before building response
+        // Single saveAndFlush: persist session + cascade-persist all questions + assign IDs
         quizSessionRepository.saveAndFlush(session);
 
         List<QuizStartResponse.QuestionItem> questionItems = builtQuestions.stream()
-                .map(we -> toQuestionItem(we.question, we.word, we.example))
+                .map(we -> toQuestionItem(we.question, we.word, we.example, isZh))
                 .toList();
 
         return QuizStartResponse.builder()
@@ -185,14 +160,14 @@ public class QuizService {
     // --- Question builders ---
 
     private QuizQuestion buildQuestion(QuizSession session, int seq, String type,
-                                        Word targetWord, Example example, String jlptLevel) {
+                                        Word targetWord, Example example, String jlptLevel, boolean isZh) {
         List<Word> distractors = wordRepository.findRandomDistractors(jlptLevel, targetWord.getId(), OPTIONS_COUNT - 1);
 
         // Build options list: correct + distractors, then shuffle
         List<OptionEntry> entries = new ArrayList<>();
-        entries.add(new OptionEntry(optionText(type, targetWord, true), true));
+        entries.add(new OptionEntry(optionText(type, targetWord, isZh), true));
         for (Word d : distractors) {
-            entries.add(new OptionEntry(optionText(type, d, false), false));
+            entries.add(new OptionEntry(optionText(type, d, isZh), false));
         }
         Collections.shuffle(entries, random);
 
@@ -218,13 +193,17 @@ public class QuizService {
         return question;
     }
 
-    private String optionText(String type, Word word, boolean isCorrect) {
+    private String optionText(String type, Word word, boolean isZh) {
         return switch (type) {
             case "MEANING" -> {
                 // Options show definitions — user picks the meaning of the word
                 String zh = word.getDefinitionZh();
                 String en = word.getDefinitionEn();
-                yield (zh != null && !zh.isBlank()) ? zh : (en != null ? en : "");
+                if (isZh) {
+                    yield (zh != null && !zh.isBlank()) ? zh : (en != null ? en : "");
+                } else {
+                    yield (en != null && !en.isBlank()) ? en : (zh != null ? zh : "");
+                }
             }
             case "REVERSE" -> {
                 // Options show Japanese words — user picks the word matching the definition
@@ -244,7 +223,7 @@ public class QuizService {
         };
     }
 
-    private QuizStartResponse.QuestionItem toQuestionItem(QuizQuestion question, Word word, Example example) {
+    private QuizStartResponse.QuestionItem toQuestionItem(QuizQuestion question, Word word, Example example, boolean isZh) {
         QuizStartResponse.StemItem stem;
 
         switch (question.getType()) {
@@ -252,20 +231,27 @@ public class QuizService {
                     .kanji(word.getKanji())
                     .hiragana(word.getHiragana())
                     .build();
-            case "REVERSE" -> stem = QuizStartResponse.StemItem.builder()
-                    .definitionZh(word.getDefinitionZh())
-                    .definitionEn(word.getDefinitionEn())
-                    .build();
+            case "REVERSE" -> {
+                String definition = isZh
+                        ? firstNonBlank(word.getDefinitionZh(), word.getDefinitionEn())
+                        : firstNonBlank(word.getDefinitionEn(), word.getDefinitionZh());
+                stem = QuizStartResponse.StemItem.builder()
+                        .definitionZh(isZh ? definition : null)
+                        .definitionEn(isZh ? null : definition)
+                        .build();
+            }
             case "SENTENCE_FILL" -> {
                 String sentenceJp = "";
-                String sentenceZh = "";
+                String translation = "";
                 if (example != null) {
                     sentenceJp = blankOutWord(example.getSentenceJp(), word);
-                    sentenceZh = example.getSentenceZh() != null ? example.getSentenceZh() : "";
+                    translation = isZh
+                            ? firstNonBlank(example.getSentenceZh(), example.getSentenceEn())
+                            : firstNonBlank(example.getSentenceEn(), example.getSentenceZh());
                 }
                 stem = QuizStartResponse.StemItem.builder()
                         .sentence(sentenceJp)
-                        .translation(sentenceZh)
+                        .translation(translation)
                         .build();
             }
             default -> stem = QuizStartResponse.StemItem.builder().build();
@@ -279,20 +265,6 @@ public class QuizService {
                 .build();
     }
 
-    private List<String> distributeTypes(List<String> types, int count) {
-        List<String> result = new ArrayList<>();
-        int perType = count / types.size();
-        int remainder = count % types.size();
-
-        for (int i = 0; i < types.size(); i++) {
-            int n = perType + (i < remainder ? 1 : 0);
-            for (int j = 0; j < n; j++) {
-                result.add(types.get(i));
-            }
-        }
-        return result;
-    }
-
     /**
      * Replace the target word (including conjugated forms) in a sentence with ＿＿＿.
      * Tries: exact kanji → exact hiragana → kanji stem → hiragana stem.
@@ -303,11 +275,11 @@ public class QuizService {
 
         // Try exact kanji match
         if (kanji != null && !kanji.isBlank() && sentence.contains(kanji)) {
-            return sentence.replace(kanji, "＿＿＿");
+            return sentence.replace(kanji, BLANK);
         }
         // Try exact hiragana match
         if (hiragana != null && sentence.contains(hiragana)) {
-            return sentence.replace(hiragana, "＿＿＿");
+            return sentence.replace(hiragana, BLANK);
         }
         // Try kanji stem match (e.g., 食べる → 食べ matches 食べます)
         if (kanji != null && kanji.length() > 1) {
@@ -319,7 +291,7 @@ public class QuizService {
                 while (end < sentence.length() && isHiragana(sentence.charAt(end))) {
                     end++;
                 }
-                return sentence.substring(0, idx) + "＿＿＿" + sentence.substring(end);
+                return sentence.substring(0, idx) + BLANK + sentence.substring(end);
             }
         }
         // Try hiragana stem match
@@ -331,7 +303,7 @@ public class QuizService {
                 while (end < sentence.length() && isHiragana(sentence.charAt(end))) {
                     end++;
                 }
-                return sentence.substring(0, idx) + "＿＿＿" + sentence.substring(end);
+                return sentence.substring(0, idx) + BLANK + sentence.substring(end);
             }
         }
         // Fallback: return original sentence (question still usable, just less ideal)
@@ -340,6 +312,12 @@ public class QuizService {
 
     private static boolean isHiragana(char c) {
         return c >= '\u3040' && c <= '\u309F';
+    }
+
+    private static String firstNonBlank(String preferred, String fallback) {
+        if (preferred != null && !preferred.isBlank()) return preferred;
+        if (fallback != null && !fallback.isBlank()) return fallback;
+        return "";
     }
 
     private record OptionEntry(String text, boolean correct) {}

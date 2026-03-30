@@ -25,5 +25,35 @@
   "antonym": "Antonym",
   "related": "Related",
   "retry": "Retry",
-  "errorLoadingWords": "Failed to load words"
+  "errorLoadingWords": "Failed to load words",
+  "quizTitle": "Quiz",
+  "startQuiz": "Start Quiz",
+  "recentScores": "Recent Scores",
+  "noQuizHistory": "No quiz history yet",
+  "quizResult": "Quiz Result",
+  "skip": "Skip",
+  "questionLabel": "Q{current} / {total}",
+  "@questionLabel": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "meaningPrompt": "What does this word mean?",
+  "reversePrompt": "Which word matches this meaning?",
+  "sentenceFillPrompt": "Fill in the blank",
+  "confirmQuit": "Quit Quiz?",
+  "confirmQuitMessage": "Your progress will be lost.",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "retryQuiz": "Try Again",
+  "backToHome": "Back to Home",
+  "questionTypeMeaning": "Meaning",
+  "questionTypeReverse": "Reverse",
+  "questionTypeSentenceFill": "Sentence Fill",
+  "jlptLevel": "JLPT Level",
+  "questionType": "Question Type",
+  "yourAnswer": "Your answer: ",
+  "correctAnswerLabel": "Correct: ",
+  "skippedLabel": "Skipped  Correct: "
 }
