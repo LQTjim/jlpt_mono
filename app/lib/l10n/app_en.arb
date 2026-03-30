@@ -55,5 +55,14 @@
   "questionType": "Question Type",
   "yourAnswer": "Your answer: ",
   "correctAnswerLabel": "Correct: ",
-  "skippedLabel": "Skipped  Correct: "
+  "skippedLabel": "Skipped  Correct: ",
+  "greetingMorning": "Good morning, ",
+  "greetingAfternoon": "Good afternoon, ",
+  "greetingEvening": "Good evening, ",
+  "studyOverview": "Study Overview",
+  "totalQuizzes": "Quizzes",
+  "averageScore": "Average",
+  "currentStreak": "Streak",
+  "browseVocabulary": "Vocabulary",
+  "noRecentQuizzes": "No records yet. Take a quiz!"
 }

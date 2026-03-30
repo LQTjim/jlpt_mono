@@ -8,12 +8,15 @@ import '../theme/app_spacing.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_typography.dart';
 import '../widgets/app_button.dart';
+import '../widgets/greeting_header.dart';
+import '../widgets/quick_action_bar.dart';
 import '../widgets/quiz_history_tile.dart';
 import '../widgets/quiz_option_card.dart';
 import '../widgets/quiz_progress_bar.dart';
 import '../widgets/quiz_result_card.dart';
 import '../widgets/quiz_settings_panel.dart';
 import '../widgets/score_ring.dart';
+import '../widgets/study_summary_card.dart';
 
 void main() {
   runApp(const WidgetbookApp());
@@ -90,6 +93,23 @@ class WidgetbookApp extends StatelessWidget {
             WidgetbookComponent(name: 'AppIconTextButton', useCases: [
               WidgetbookUseCase(
                   name: 'Examples', builder: (_) => const _IconTextButtonShowcase()),
+            ]),
+          ],
+        ),
+        WidgetbookCategory(
+          name: 'Dashboard',
+          children: [
+            WidgetbookComponent(name: 'GreetingHeader', useCases: [
+              WidgetbookUseCase(
+                  name: 'Variants', builder: (_) => const _GreetingHeaderShowcase()),
+            ]),
+            WidgetbookComponent(name: 'StudySummaryCard', useCases: [
+              WidgetbookUseCase(
+                  name: 'States', builder: (_) => const _StudySummaryCardShowcase()),
+            ]),
+            WidgetbookComponent(name: 'QuickActionBar', useCases: [
+              WidgetbookUseCase(
+                  name: 'Interactive', builder: (_) => const _QuickActionBarShowcase()),
             ]),
           ],
         ),
@@ -701,6 +721,147 @@ class _QuizHistoryTileShowcase extends StatelessWidget {
           const SizedBox(height: 8),
           const QuizHistoryTile(
               date: '3/23', jlptLevel: 'N3', score: 10, total: 10),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Greeting Header Showcase
+// ---------------------------------------------------------------------------
+
+class _GreetingHeaderShowcase extends StatelessWidget {
+  const _GreetingHeaderShowcase();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('With Avatar',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          const GreetingHeader(
+            name: 'Kevin',
+            jlptLevel: 'N5',
+            greeting: '早安，',
+            pictureUrl: null,
+          ),
+          const SizedBox(height: 24),
+          const Text('Morning',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          const GreetingHeader(
+            name: 'Kevin',
+            jlptLevel: 'N3',
+            greeting: 'Good morning, ',
+          ),
+          const SizedBox(height: 24),
+          const Text('Evening',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          const GreetingHeader(
+            name: '使用者',
+            jlptLevel: 'N1',
+            greeting: '晚安，',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Study Summary Card Showcase
+// ---------------------------------------------------------------------------
+
+class _StudySummaryCardShowcase extends StatelessWidget {
+  const _StudySummaryCardShowcase();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('With Data',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          const StudySummaryCard(
+            totalQuizzes: 42,
+            averageScore: 78,
+            currentStreak: 5,
+            totalQuizzesLabel: '測驗數',
+            averageScoreLabel: '平均分',
+            currentStreakLabel: '連續天數',
+          ),
+          const SizedBox(height: 24),
+          const Text('Empty State',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          const StudySummaryCard(
+            totalQuizzes: 0,
+            averageScore: 0,
+            currentStreak: 0,
+            totalQuizzesLabel: 'Quizzes',
+            averageScoreLabel: 'Average',
+            currentStreakLabel: 'Streak',
+          ),
+          const SizedBox(height: 24),
+          const Text('High Stats',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          const StudySummaryCard(
+            totalQuizzes: 365,
+            averageScore: 95,
+            currentStreak: 30,
+            totalQuizzesLabel: 'Quizzes',
+            averageScoreLabel: 'Average',
+            currentStreakLabel: 'Streak',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Quick Action Bar Showcase
+// ---------------------------------------------------------------------------
+
+class _QuickActionBarShowcase extends StatelessWidget {
+  const _QuickActionBarShowcase();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Enabled',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          QuickActionBar(
+            startQuizLabel: '開始測驗',
+            browseVocabularyLabel: '瀏覽單字',
+            onStartQuiz: () {},
+            onBrowseVocabulary: () {},
+          ),
+          const SizedBox(height: 24),
+          const Text('English',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          QuickActionBar(
+            startQuizLabel: 'Start Quiz',
+            browseVocabularyLabel: 'Vocabulary',
+            onStartQuiz: () {},
+            onBrowseVocabulary: () {},
+          ),
         ],
       ),
     );

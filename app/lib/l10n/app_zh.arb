@@ -55,5 +55,14 @@
   "questionType": "題型",
   "yourAnswer": "你的答案: ",
   "correctAnswerLabel": "正解: ",
-  "skippedLabel": "跳過  正解: "
+  "skippedLabel": "跳過  正解: ",
+  "greetingMorning": "早安，",
+  "greetingAfternoon": "午安，",
+  "greetingEvening": "晚安，",
+  "studyOverview": "學習概覽",
+  "totalQuizzes": "測驗數",
+  "averageScore": "平均分",
+  "currentStreak": "連續天數",
+  "browseVocabulary": "瀏覽單字",
+  "noRecentQuizzes": "尚無紀錄，來做測驗吧！"
 }
