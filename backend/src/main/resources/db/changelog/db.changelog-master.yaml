@@ -120,3 +120,19 @@ databaseChangeLog:
         - sqlFile:
             path: db/changelog/005-create-quiz-tables.sql
             relativeToChangelogFile: false
+
+  - changeSet:
+      id: 006-create-audio-cache-table
+      author: ktlin
+      changes:
+        - sqlFile:
+            path: db/changelog/006-create-audio-cache-table.sql
+            relativeToChangelogFile: false
+
+  - changeSet:
+      id: 007-enhance-audio-tables
+      author: ktlin
+      changes:
+        - sqlFile:
+            path: db/changelog/007-enhance-audio-tables.sql
+            relativeToChangelogFile: false
