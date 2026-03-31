@@ -37,6 +37,7 @@ class AppApplicationTests {
 		assertThat(tableExists("words")).isTrue();
 		assertThat(tableExists("examples")).isTrue();
 		assertThat(tableExists("word_relations")).isTrue();
+		assertThat(tableExists("audio_cache")).isTrue();
 
 		assertThat(countRows("categories")).isGreaterThan(0);
 		assertThat(countRows("words")).isGreaterThan(0);
