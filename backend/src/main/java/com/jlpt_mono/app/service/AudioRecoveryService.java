@@ -7,11 +7,14 @@ import com.jlpt_mono.app.repository.AudioCacheRepository;
 import com.jlpt_mono.app.repository.AudioTaskRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -26,6 +29,11 @@ public class AudioRecoveryService {
     private final AudioEnqueueService audioEnqueueService;
     private final AudioQueueDispatcher audioQueueDispatcher;
     private final AudioQueueProperties props;
+
+    // Self-reference to ensure @Transactional on recoverStaleBatch() is honoured
+    // when called from startupRecovery() and scheduledRecovery() (avoids self-invocation proxy bypass).
+    @Autowired @Lazy
+    private AudioRecoveryService self;
 
     public AudioRecoveryService(AudioTaskRepository audioTaskRepository,
                                 AudioCacheRepository audioCacheRepository,
@@ -45,7 +53,7 @@ public class AudioRecoveryService {
         int total = 0;
         int recovered;
         do {
-            recovered = recoverStaleBatch(props.getStartupRecoveryBatch());
+            recovered = self.recoverStaleBatch(props.getStartupRecoveryBatch());
             total += recovered;
         } while (recovered > 0);
 
@@ -57,10 +65,11 @@ public class AudioRecoveryService {
 
     @Scheduled(fixedDelayString = "${app.audio.queue.recovery-interval}")
     public void scheduledRecovery() {
-        recoverStaleBatch(props.getRecoveryBatch());
+        self.recoverStaleBatch(props.getRecoveryBatch());
     }
 
-    private int recoverStaleBatch(int limit) {
+    @Transactional
+    int recoverStaleBatch(int limit) {
         Instant now = Instant.now();
         List<AudioTask> stale = audioTaskRepository.findByStatusAndLeaseExpiresAtBefore(
                 AudioTaskStatus.CLAIMED, now, PageRequest.of(0, limit));

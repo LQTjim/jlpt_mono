@@ -43,6 +43,7 @@ public class AudioQueueDispatcher {
     }
 
     @Scheduled(fixedDelayString = "${app.audio.queue.dispatch-interval}")
+    @Transactional
     public void scheduledDispatch() {
         dispatchOnce();
     }
@@ -50,6 +51,9 @@ public class AudioQueueDispatcher {
     /**
      * Claims available QUEUED tasks and submits them to the worker executor.
      * Called by the scheduler and by the after-commit nudge in AudioService.
+     * <p>
+     * When called from {@code scheduledDispatch()} the transaction is already active (REQUIRED joins it).
+     * When called externally (e.g. after-commit nudge) Spring opens a new transaction via the proxy.
      */
     @Transactional
     public void dispatchOnce() {
