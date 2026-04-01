@@ -18,6 +18,13 @@ public interface AudioTaskRepository extends JpaRepository<AudioTask, Long> {
 
     Optional<AudioTask> findByAudioCacheIdAndStatusIn(Long audioCacheId, Collection<AudioTaskStatus> statuses);
 
+    /**
+     * Loads an AudioTask together with its AudioCache and Word in a single query,
+     * so callers outside a transaction (e.g. AudioWorkerService) don't hit LazyInitializationException.
+     */
+    @Query("SELECT t FROM AudioTask t JOIN FETCH t.audioCache c JOIN FETCH c.word WHERE t.id = :id")
+    Optional<AudioTask> findByIdWithCache(@Param("id") Long id);
+
     List<AudioTask> findByStatusAndLeaseExpiresAtBefore(AudioTaskStatus status, Instant cutoff, Pageable pageable);
 
     /**

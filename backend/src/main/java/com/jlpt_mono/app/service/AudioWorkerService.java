@@ -50,7 +50,7 @@ public class AudioWorkerService {
     }
 
     public void execute(Long taskId, UUID workerToken) {
-        AudioTask task = audioTaskRepository.findById(taskId)
+        AudioTask task = audioTaskRepository.findByIdWithCache(taskId)
                 .orElseThrow(() -> new IllegalStateException("AudioTask not found: " + taskId));
 
         Long audioCacheId = task.getAudioCache().getId();

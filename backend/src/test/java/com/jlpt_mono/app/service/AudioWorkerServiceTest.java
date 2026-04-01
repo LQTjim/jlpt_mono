@@ -52,7 +52,7 @@ class AudioWorkerServiceTest {
     @DisplayName("execute — 成功時應呼叫 completeSuccess 並 cancel heartbeat")
     void execute_success_completesAndCancelsHeartbeat() {
         AudioTask task = makeTask(10L, 1L, "こんにちは", 1);
-        when(audioTaskRepository.findById(10L)).thenReturn(Optional.of(task));
+        when(audioTaskRepository.findByIdWithCache(10L)).thenReturn(Optional.of(task));
         when(elevenLabsClient.generateSpeech("こんにちは")).thenReturn(new byte[]{1, 2, 3});
         when(audioEnqueueService.completeSuccess(eq(10L), eq(token), eq(1L), any())).thenReturn(1);
 
@@ -67,7 +67,7 @@ class AudioWorkerServiceTest {
     @DisplayName("execute — completeSuccess 回傳 0（ownership 丟失）時應靜默返回，不呼叫 handleFailure")
     void execute_ownershipLostAtComplete_returnsQuietly() {
         AudioTask task = makeTask(10L, 1L, "こんにちは", 1);
-        when(audioTaskRepository.findById(10L)).thenReturn(Optional.of(task));
+        when(audioTaskRepository.findByIdWithCache(10L)).thenReturn(Optional.of(task));
         when(elevenLabsClient.generateSpeech(any())).thenReturn(new byte[]{1});
         when(audioEnqueueService.completeSuccess(any(), any(), any(), any())).thenReturn(0);
 
@@ -82,7 +82,7 @@ class AudioWorkerServiceTest {
     @DisplayName("execute — completeSuccess 拋出例外時應走 handleFailure retryable 路徑")
     void execute_completeSuccessThrows_treatedAsRetryableFailure() {
         AudioTask task = makeTask(10L, 1L, "こんにちは", 1);
-        when(audioTaskRepository.findById(10L)).thenReturn(Optional.of(task));
+        when(audioTaskRepository.findByIdWithCache(10L)).thenReturn(Optional.of(task));
         when(elevenLabsClient.generateSpeech(any())).thenReturn(new byte[]{1});
         when(audioEnqueueService.completeSuccess(any(), any(), any(), any()))
                 .thenThrow(new RuntimeException("DB connection lost"));
@@ -102,7 +102,7 @@ class AudioWorkerServiceTest {
     @DisplayName("execute — retryable TtsException 且有剩餘次數時應排程 retry task")
     void execute_retryableTtsException_enqueuesRetryTask() {
         AudioTask task = makeTask(10L, 1L, "こんにちは", 1);
-        when(audioTaskRepository.findById(10L)).thenReturn(Optional.of(task));
+        when(audioTaskRepository.findByIdWithCache(10L)).thenReturn(Optional.of(task));
         when(elevenLabsClient.generateSpeech(any()))
                 .thenThrow(new TtsException("429 rate limit", null, true));
         when(audioTaskRepository.markTaskFinishedIfOwned(any(), any(), any(), any(), any())).thenReturn(1);
@@ -119,7 +119,7 @@ class AudioWorkerServiceTest {
     @DisplayName("execute — retry 排程中 ownership 已丟失時應靜默返回")
     void execute_retryableTtsException_ownershipLostBeforeRetry_returnsQuietly() {
         AudioTask task = makeTask(10L, 1L, "こんにちは", 1);
-        when(audioTaskRepository.findById(10L)).thenReturn(Optional.of(task));
+        when(audioTaskRepository.findByIdWithCache(10L)).thenReturn(Optional.of(task));
         when(elevenLabsClient.generateSpeech(any()))
                 .thenThrow(new TtsException("429", null, true));
         when(audioTaskRepository.markTaskFinishedIfOwned(any(), any(), any(), any(), any())).thenReturn(0);
@@ -134,7 +134,7 @@ class AudioWorkerServiceTest {
     @DisplayName("execute — backoff 應隨 attemptNo 遞增（attempt 2 → 120s）")
     void execute_backoffIncreasesWithAttemptNo() {
         AudioTask task = makeTask(10L, 1L, "こんにちは", 2); // attempt 2
-        when(audioTaskRepository.findById(10L)).thenReturn(Optional.of(task));
+        when(audioTaskRepository.findByIdWithCache(10L)).thenReturn(Optional.of(task));
         when(elevenLabsClient.generateSpeech(any()))
                 .thenThrow(new TtsException("500", null, true));
         when(audioTaskRepository.markTaskFinishedIfOwned(any(), any(), any(), any(), any())).thenReturn(1);
@@ -152,7 +152,7 @@ class AudioWorkerServiceTest {
     @DisplayName("execute — non-retryable TtsException 應直接 dead-letter")
     void execute_nonRetryableTtsException_deadLetters() {
         AudioTask task = makeTask(10L, 1L, "こんにちは", 1);
-        when(audioTaskRepository.findById(10L)).thenReturn(Optional.of(task));
+        when(audioTaskRepository.findByIdWithCache(10L)).thenReturn(Optional.of(task));
         when(elevenLabsClient.generateSpeech(any()))
                 .thenThrow(new TtsException("401 unauthorized", null, false));
         when(audioTaskRepository.markTaskFinishedIfOwned(any(), any(), any(), any(), any())).thenReturn(1);
@@ -174,7 +174,7 @@ class AudioWorkerServiceTest {
                 elevenLabsClient, b2StorageClient, audioEnqueueService, props, heartbeatExecutor);
 
         AudioTask task = makeTask(10L, 1L, "こんにちは", 5); // last attempt
-        when(audioTaskRepository.findById(10L)).thenReturn(Optional.of(task));
+        when(audioTaskRepository.findByIdWithCache(10L)).thenReturn(Optional.of(task));
         when(elevenLabsClient.generateSpeech(any()))
                 .thenThrow(new TtsException("500", null, true));
         when(audioTaskRepository.markTaskFinishedIfOwned(any(), any(), any(), any(), any())).thenReturn(1);
@@ -191,7 +191,7 @@ class AudioWorkerServiceTest {
     @DisplayName("execute — dead-letter 時 cache 已被並發重新排程（markFailedIfProcessing 回 0）應跳過覆寫")
     void execute_deadLetter_cacheAlreadyRequeued_skipsMarkFailed() {
         AudioTask task = makeTask(10L, 1L, "こんにちは", 1);
-        when(audioTaskRepository.findById(10L)).thenReturn(Optional.of(task));
+        when(audioTaskRepository.findByIdWithCache(10L)).thenReturn(Optional.of(task));
         when(elevenLabsClient.generateSpeech(any()))
                 .thenThrow(new TtsException("401", null, false));
         when(audioTaskRepository.markTaskFinishedIfOwned(any(), any(), any(), any(), any())).thenReturn(1);
