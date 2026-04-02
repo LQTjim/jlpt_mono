@@ -7,7 +7,12 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_typography.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/audio_provider.dart';
+import '../services/audio_service.dart';
 import '../widgets/app_button.dart';
+import '../widgets/audio_play_button.dart';
 import '../widgets/greeting_header.dart';
 import '../widgets/quick_action_bar.dart';
 import '../widgets/quiz_history_tile.dart';
@@ -80,6 +85,16 @@ class WidgetbookApp extends StatelessWidget {
             WidgetbookComponent(name: 'Spacing', useCases: [
               WidgetbookUseCase(
                   name: 'Scale', builder: (_) => const _SpacingScale()),
+            ]),
+          ],
+        ),
+        WidgetbookCategory(
+          name: 'Vocabulary',
+          children: [
+            WidgetbookComponent(name: 'AudioPlayButton', useCases: [
+              WidgetbookUseCase(
+                  name: 'All States',
+                  builder: (_) => const _AudioPlayButtonShowcase()),
             ]),
           ],
         ),
@@ -867,6 +882,88 @@ class _QuickActionBarShowcase extends StatelessWidget {
     );
   }
 }
+
+// ---------------------------------------------------------------------------
+// Audio Play Button Showcase
+// ---------------------------------------------------------------------------
+
+class _AudioPlayButtonShowcase extends StatelessWidget {
+  const _AudioPlayButtonShowcase();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Play (idle / failed)',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          _audioButtonWithState(AudioStatus.idle),
+          const SizedBox(height: 24),
+          const Text('Loading (generating or playing)',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          _audioButtonWithState(AudioStatus.loading),
+          const SizedBox(height: 24),
+          const Text('In context (header)',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          _headerPreview(),
+        ],
+      ),
+    );
+  }
+
+  Widget _audioButtonWithState(AudioStatus status) {
+    const wordId = 1;
+    return ChangeNotifierProvider(
+      create: (_) => AudioProvider(
+        _nullAudioService,
+        initialStates: {
+          wordId: AudioWordState(
+            status: status,
+            presignedUrl: status == AudioStatus.ready ? 'https://example.com/audio.mp3' : null,
+          ),
+        },
+      ),
+      child: const AudioPlayButton(wordId: wordId),
+    );
+  }
+
+  Widget _headerPreview() {
+    const wordId = 2;
+    return ChangeNotifierProvider(
+      create: (_) => AudioProvider(
+        _nullAudioService,
+        initialStates: {
+          wordId: const AudioWordState(status: AudioStatus.idle),
+        },
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: const Color(0xFFE0E0E0)),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: const [
+            Text('こんにちは',
+                style: TextStyle(fontSize: 20, color: AppColors.textSecondary)),
+            SizedBox(width: 4),
+            AudioPlayButton(wordId: wordId),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// No-op AudioService for Widgetbook stories — never makes real network calls.
+AudioService get _nullAudioService => AudioService.stub();
 
 // ---------------------------------------------------------------------------
 // Icon Text Button Showcase
