@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -50,12 +51,11 @@ public class AudioQueueDispatcher {
 
     /**
      * Claims available QUEUED tasks and submits them to the worker executor.
-     * Called by the scheduler and by the after-commit nudge in AudioService.
-     * <p>
-     * When called from {@code scheduledDispatch()} the transaction is already active (REQUIRED joins it).
-     * When called externally (e.g. after-commit nudge) Spring opens a new transaction via the proxy.
+     * Called by the scheduler (self-invocation, runs in scheduledDispatch's TX)
+     * and by the after-commit nudge in AudioService (via proxy, REQUIRES_NEW opens
+     * a fresh TX so the already-committed outer TX context doesn't interfere).
      */
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void dispatchOnce() {
         UUID token = UUID.randomUUID();
         List<Long> ids = audioTaskRepository.claimBatch(
@@ -65,7 +65,7 @@ public class AudioQueueDispatcher {
 
         if (ids.isEmpty()) return;
 
-        log.debug("Dispatcher claimed {} tasks", ids.size());
+        log.debug("[DISPATCHER] Claimed {} tasks: {}", ids.size(), ids);
 
         List<Long> scheduledIds = new ArrayList<>();
         for (Long taskId : ids) {
@@ -81,11 +81,13 @@ public class AudioQueueDispatcher {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {
+                    log.debug("[DISPATCHER] afterCommit: submitting {} workers", scheduledIds.size());
                     scheduledIds.forEach(taskId ->
                             workerExecutor.execute(() -> audioWorkerService.execute(taskId, token)));
                 }
             });
         } else {
+            log.debug("[DISPATCHER] No active TX sync, submitting {} workers directly", scheduledIds.size());
             scheduledIds.forEach(taskId ->
                     workerExecutor.execute(() -> audioWorkerService.execute(taskId, token)));
         }

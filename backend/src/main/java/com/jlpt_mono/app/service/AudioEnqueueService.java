@@ -58,7 +58,7 @@ class AudioEnqueueService {
     /**
      * Inserts a RECOVERY QUEUED task (used by AudioRecoveryService and retry logic).
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     AudioTask enqueueRecoveryTask(Long audioCacheId, int attemptNo, Instant availableAt) {
         AudioCache cache = audioCacheRepository.findById(audioCacheId).orElseThrow();
         return insertTask(cache, AudioTaskPriority.RECOVERY, AudioTaskOrigin.SCHEDULER, attemptNo, availableAt);

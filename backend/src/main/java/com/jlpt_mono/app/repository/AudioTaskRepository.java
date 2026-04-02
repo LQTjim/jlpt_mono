@@ -25,7 +25,20 @@ public interface AudioTaskRepository extends JpaRepository<AudioTask, Long> {
     @Query("SELECT t FROM AudioTask t JOIN FETCH t.audioCache c JOIN FETCH c.word WHERE t.id = :id")
     Optional<AudioTask> findByIdWithCache(@Param("id") Long id);
 
-    List<AudioTask> findByStatusAndLeaseExpiresAtBefore(AudioTaskStatus status, Instant cutoff, Pageable pageable);
+    /**
+     * Finds stale CLAIMED tasks with an eager fetch of audioCache and word,
+     * so callers outside a transaction (e.g. AudioRecoveryService) can access
+     * lazy associations without a LazyInitializationException.
+     */
+    @Query("""
+            SELECT t FROM AudioTask t
+            JOIN FETCH t.audioCache c JOIN FETCH c.word
+            WHERE t.status = :status AND t.leaseExpiresAt < :cutoff
+            ORDER BY t.leaseExpiresAt ASC
+            """)
+    List<AudioTask> findStaleWithCache(@Param("status") AudioTaskStatus status,
+                                       @Param("cutoff") Instant cutoff,
+                                       Pageable pageable);
 
     /**
      * Atomically claims up to batchSize QUEUED tasks using CTE + FOR UPDATE SKIP LOCKED.

@@ -30,16 +30,16 @@ public class AudioRecoveryService {
     private final AudioQueueDispatcher audioQueueDispatcher;
     private final AudioQueueProperties props;
 
-    // Self-reference to ensure @Transactional on recoverStaleBatch() is honoured
-    // when called from startupRecovery() and scheduledRecovery() (avoids self-invocation proxy bypass).
+    // Self-reference to route recoverOneTask() calls through the Spring proxy
+    // so @Transactional is honoured (avoids self-invocation bypass).
     @Autowired @Lazy
     private AudioRecoveryService self;
 
     public AudioRecoveryService(AudioTaskRepository audioTaskRepository,
-                                AudioCacheRepository audioCacheRepository,
-                                AudioEnqueueService audioEnqueueService,
-                                AudioQueueDispatcher audioQueueDispatcher,
-                                AudioQueueProperties props) {
+            AudioCacheRepository audioCacheRepository,
+            AudioEnqueueService audioEnqueueService,
+            AudioQueueDispatcher audioQueueDispatcher,
+            AudioQueueProperties props) {
         this.audioTaskRepository = audioTaskRepository;
         this.audioCacheRepository = audioCacheRepository;
         this.audioEnqueueService = audioEnqueueService;
@@ -53,7 +53,7 @@ public class AudioRecoveryService {
         int total = 0;
         int recovered;
         do {
-            recovered = self.recoverStaleBatch(props.getStartupRecoveryBatch());
+            recovered = recoverStaleBatch(props.getStartupRecoveryBatch());
             total += recovered;
         } while (recovered > 0);
 
@@ -65,31 +65,39 @@ public class AudioRecoveryService {
 
     @Scheduled(fixedDelayString = "${app.audio.queue.recovery-interval}")
     public void scheduledRecovery() {
-        self.recoverStaleBatch(props.getRecoveryBatch());
+        recoverStaleBatch(props.getRecoveryBatch());
     }
 
-    @Transactional
     int recoverStaleBatch(int limit) {
         Instant now = Instant.now();
-        List<AudioTask> stale = audioTaskRepository.findByStatusAndLeaseExpiresAtBefore(
+        List<AudioTask> stale = audioTaskRepository.findStaleWithCache(
                 AudioTaskStatus.CLAIMED, now, PageRequest.of(0, limit));
 
         int recovered = 0;
         for (AudioTask task : stale) {
-            int abandoned = audioTaskRepository.abandonTask(task.getId(), task.getWorkerToken(), now);
-            if (abandoned == 0) {
-                continue; // another recovery instance or the worker itself won the CAS
-            }
-            Long audioCacheId = task.getAudioCache().getId();
             try {
-                audioCacheRepository.markPending(audioCacheId, now);
-                audioEnqueueService.enqueueRecoveryTask(audioCacheId, task.getAttemptNo(), now);
-                recovered++;
-                log.info("Recovered stale task: taskId={}, audioCacheId={}", task.getId(), audioCacheId);
+                if (self.recoverOneTask(task, now)) recovered++;
             } catch (Exception e) {
-                log.error("Failed to re-enqueue recovered task: taskId={}", task.getId(), e);
+                log.error("Failed to recover stale task: taskId={}", task.getId(), e);
             }
         }
         return recovered;
+    }
+
+    /**
+     * Atomically abandons a single stale task and enqueues its recovery in one transaction.
+     * Each task runs in its own transaction so a failure on one doesn't roll back others.
+     */
+    @Transactional
+    boolean recoverOneTask(AudioTask task, Instant now) {
+        int abandoned = audioTaskRepository.abandonTask(task.getId(), task.getWorkerToken(), now);
+        if (abandoned == 0) {
+            return false; // another recovery instance or the worker itself won the CAS
+        }
+        Long audioCacheId = task.getAudioCache().getId();
+        audioCacheRepository.markPending(audioCacheId, now);
+        audioEnqueueService.enqueueRecoveryTask(audioCacheId, task.getAttemptNo(), now);
+        log.info("Recovered stale task: taskId={}, audioCacheId={}", task.getId(), audioCacheId);
+        return true;
     }
 }

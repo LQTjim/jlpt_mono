@@ -59,14 +59,21 @@ public class AudioWorkerService {
         String sourceText = task.getAudioCache().getSourceText();
         int attemptNo = task.getAttemptNo();
 
+        log.debug("[WORKER] Starting execute: taskId={}, audioCacheId={}, wordId={}, voiceId={}, sourceText='{}', attemptNo={}",
+                taskId, audioCacheId, wordId, voiceId, sourceText, attemptNo);
+
         AtomicBoolean ownershipLost = new AtomicBoolean(false);
         ScheduledFuture<?> heartbeat = startHeartbeat(taskId, workerToken, ownershipLost);
 
         try {
+            log.debug("[WORKER] Calling ElevenLabs generateSpeech: taskId={}", taskId);
             byte[] audioBytes = elevenLabsClient.generateSpeech(sourceText);
+            log.debug("[WORKER] ElevenLabs returned {} bytes: taskId={}", audioBytes == null ? 0 : audioBytes.length, taskId);
 
             String objectKey = "voc/tts/%d/%s.mp3".formatted(wordId, voiceId);
+            log.debug("[WORKER] Uploading to B2: taskId={}, key={}", taskId, objectKey);
             b2StorageClient.uploadAudio(objectKey, audioBytes);
+            log.debug("[WORKER] B2 upload done: taskId={}, key={}", taskId, objectKey);
 
             int updated = audioEnqueueService.completeSuccess(taskId, workerToken, audioCacheId, objectKey);
             if (updated == 0) {
