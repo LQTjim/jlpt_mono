@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'l10n/app_localizations.dart';
+import 'providers/audio_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/dashboard_provider.dart';
 import 'providers/jlpt_level_provider.dart';
@@ -12,6 +13,7 @@ import 'screens/language_selection_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_shell.dart';
 import 'services/api_client.dart';
+import 'services/audio_service.dart';
 import 'services/auth_service.dart';
 import 'services/dashboard_service.dart';
 import 'services/quiz_service.dart';
@@ -62,6 +64,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => DashboardProvider(DashboardService(apiClient)),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => AudioProvider(AudioService(apiClient)),
         ),
       ],
       child: Consumer<LocaleProvider>(

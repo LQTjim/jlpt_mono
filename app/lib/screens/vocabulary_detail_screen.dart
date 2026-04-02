@@ -11,6 +11,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import '../widgets/app_tag.dart';
+import '../widgets/audio_play_button.dart';
 
 class VocabularyDetailScreen extends StatefulWidget {
   final int wordId;
@@ -121,9 +122,16 @@ class _DetailContent extends StatelessWidget {
           Text(word.kanji!,
               style: AppTypography.contentHeading.copyWith(fontSize: 36)),
         const SizedBox(height: AppSpacing.xs),
-        Text(word.hiragana,
-            style: AppTypography.contentBody
-                .copyWith(fontSize: 20, color: AppColors.textSecondary)),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(word.hiragana,
+                style: AppTypography.contentBody
+                    .copyWith(fontSize: 20, color: AppColors.textSecondary)),
+            const SizedBox(width: AppSpacing.xs),
+            AudioPlayButton(wordId: word.id),
+          ],
+        ),
         if (word.romaji != null) ...[
           const SizedBox(height: AppSpacing.xs),
           Text(word.romaji!, style: AppTypography.bodySmall(locale)),
