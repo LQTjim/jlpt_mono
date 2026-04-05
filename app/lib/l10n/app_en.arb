@@ -64,5 +64,16 @@
   "averageScore": "Average",
   "currentStreak": "Streak",
   "browseVocabulary": "Vocabulary",
-  "noRecentQuizzes": "No records yet. Take a quiz!"
+  "noRecentQuizzes": "No records yet. Take a quiz!",
+  "flashcardTitle": "Flashcard",
+  "flashcardStart": "Start Flashcard",
+  "flashcardPractice": "Flashcard Practice",
+  "flashcardFlip": "Tap card to flip",
+  "flashcardCardCount": "{current} / {total}",
+  "@flashcardCardCount": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  }
 }

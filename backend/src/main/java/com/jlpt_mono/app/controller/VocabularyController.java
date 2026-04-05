@@ -39,6 +39,13 @@ public class VocabularyController {
         return ResponseEntity.ok(vocabularyService.getWordDetail(id));
     }
 
+    @GetMapping("/flashcards/random")
+    public ResponseEntity<List<WordSummaryResponse>> getRandomFlashcards(
+            @RequestParam String jlptLevel,
+            @RequestParam(defaultValue = "20") int count) {
+        return ResponseEntity.ok(vocabularyService.getRandomFlashcards(jlptLevel, count));
+    }
+
     @GetMapping("/categories")
     public ResponseEntity<List<CategoryResponse>> getCategories() {
         return ResponseEntity.ok(vocabularyService.getCategoryTree());

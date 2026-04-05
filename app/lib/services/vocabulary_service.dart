@@ -50,6 +50,27 @@ class VocabularyService {
     return WordDetail.fromJson(json);
   }
 
+  Future<List<WordSummary>> getRandomFlashcards({
+    required String jlptLevel,
+    int count = 20,
+  }) async {
+    final query = Uri(queryParameters: {
+      'jlptLevel': jlptLevel,
+      'count': '$count',
+    }).query;
+    final response =
+        await _apiClient.get('/api/vocabulary/flashcards/random?$query');
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load flashcards: ${response.statusCode}');
+    }
+
+    final json = jsonDecode(response.body) as List<dynamic>;
+    return json
+        .map((e) => WordSummary.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<List<Category>> getCategories() async {
     final response = await _apiClient.get('/api/vocabulary/categories');
 

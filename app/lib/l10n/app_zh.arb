@@ -64,5 +64,16 @@
   "averageScore": "平均分",
   "currentStreak": "連續天數",
   "browseVocabulary": "瀏覽單字",
-  "noRecentQuizzes": "尚無紀錄，來做測驗吧！"
+  "noRecentQuizzes": "尚無紀錄，來做測驗吧！",
+  "flashcardTitle": "單字卡",
+  "flashcardStart": "開始單字卡",
+  "flashcardPractice": "單字卡練習",
+  "flashcardFlip": "點擊卡片翻面",
+  "flashcardCardCount": "{current} / {total}",
+  "@flashcardCardCount": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  }
 }

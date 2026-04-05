@@ -5,6 +5,7 @@ import 'l10n/app_localizations.dart';
 import 'providers/audio_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/dashboard_provider.dart';
+import 'providers/flashcard_provider.dart';
 import 'providers/jlpt_level_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/quiz_provider.dart';
@@ -67,6 +68,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => AudioProvider(AudioService(apiClient)),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => FlashcardProvider(VocabularyService(apiClient)),
         ),
       ],
       child: Consumer<LocaleProvider>(

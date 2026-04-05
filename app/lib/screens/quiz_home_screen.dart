@@ -11,6 +11,7 @@ import '../theme/app_spacing.dart';
 import '../widgets/app_button.dart';
 import '../widgets/quiz_history_tile.dart';
 import '../widgets/quiz_settings_panel.dart';
+import 'flashcard_session_screen.dart';
 import 'quiz_session_screen.dart';
 
 class QuizHomeScreen extends StatefulWidget {
@@ -22,6 +23,7 @@ class QuizHomeScreen extends StatefulWidget {
 
 class _QuizHomeScreenState extends State<QuizHomeScreen> {
   String _selectedLevel = 'N5';
+  String? _flashcardLevel;
   QuestionType _selectedType = QuestionType.meaning;
 
   @override
@@ -63,6 +65,18 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                 icon: Icons.play_arrow,
                 size: AppButtonSize.large,
                 onPressed: quiz.isStarting ? null : () => _startQuiz(quiz),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+
+            SizedBox(
+              width: double.infinity,
+              child: AppButton(
+                label: l10n.flashcardPractice,
+                icon: Icons.style_outlined,
+                variant: AppButtonVariant.outlined,
+                size: AppButtonSize.large,
+                onPressed: () => _showFlashcardSheet(l10n),
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -122,6 +136,116 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
             );
           }),
       ],
+    );
+  }
+
+  void _showFlashcardSheet(AppLocalizations l10n) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.warmWhite,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        var level = _flashcardLevel ?? _selectedLevel;
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.xl,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.style_outlined,
+                          color: AppColors.terracotta, size: 20),
+                      const SizedBox(width: AppSpacing.sm),
+                      Text(
+                        l10n.flashcardPractice,
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  Text(
+                    l10n.jlptLevel.toUpperCase(),
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.5,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(
+                    children: QuizSettingsPanel.levels.map((l) {
+                      final selected = level == l;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: AppSpacing.sm),
+                        child: GestureDetector(
+                          onTap: () => setSheetState(() => level = l),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 150),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.md,
+                              vertical: AppSpacing.sm,
+                            ),
+                            decoration: BoxDecoration(
+                              color: selected
+                                  ? AppColors.terracotta
+                                  : Colors.transparent,
+                              borderRadius: AppSpacing.radiusMd,
+                              border: Border.all(
+                                color: selected
+                                    ? AppColors.terracotta
+                                    : AppColors.divider,
+                              ),
+                            ),
+                            child: Text(
+                              l,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: selected
+                                    ? Colors.white
+                                    : AppColors.textSecondary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  SizedBox(
+                    width: double.infinity,
+                    child: AppButton(
+                      label: l10n.flashcardStart,
+                      icon: Icons.play_arrow,
+                      size: AppButtonSize.large,
+                      onPressed: () {
+                        setState(() => _flashcardLevel = level);
+                        Navigator.of(sheetContext).pop();
+                        Navigator.of(this.context).push(MaterialPageRoute(
+                          builder: (_) =>
+                              FlashcardSessionScreen(jlptLevel: level),
+                        ));
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

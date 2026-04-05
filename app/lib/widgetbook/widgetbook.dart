@@ -11,8 +11,10 @@ import 'package:provider/provider.dart';
 
 import '../providers/audio_provider.dart';
 import '../services/audio_service.dart';
+import '../models/word_summary.dart';
 import '../widgets/app_button.dart';
 import '../widgets/audio_play_button.dart';
+import '../widgets/flashcard_card.dart';
 import '../widgets/greeting_header.dart';
 import '../widgets/quick_action_bar.dart';
 import '../widgets/quiz_history_tile.dart';
@@ -85,6 +87,22 @@ class WidgetbookApp extends StatelessWidget {
             WidgetbookComponent(name: 'Spacing', useCases: [
               WidgetbookUseCase(
                   name: 'Scale', builder: (_) => const _SpacingScale()),
+            ]),
+          ],
+        ),
+        WidgetbookCategory(
+          name: 'Flashcard',
+          children: [
+            WidgetbookComponent(name: 'FlashcardCard', useCases: [
+              WidgetbookUseCase(
+                  name: 'Front (with kanji)',
+                  builder: (_) => _FlashcardFrontShowcase()),
+              WidgetbookUseCase(
+                  name: 'Back (meaning)',
+                  builder: (_) => _FlashcardBackShowcase()),
+              WidgetbookUseCase(
+                  name: 'Kana only (no kanji)',
+                  builder: (_) => _FlashcardKanaOnlyShowcase()),
             ]),
           ],
         ),
@@ -864,8 +882,10 @@ class _QuickActionBarShowcase extends StatelessWidget {
           QuickActionBar(
             startQuizLabel: '開始測驗',
             browseVocabularyLabel: '瀏覽單字',
+            flashcardLabel: '單字卡',
             onStartQuiz: () {},
             onBrowseVocabulary: () {},
+            onFlashcard: () {},
           ),
           const SizedBox(height: 24),
           const Text('English',
@@ -874,8 +894,10 @@ class _QuickActionBarShowcase extends StatelessWidget {
           QuickActionBar(
             startQuizLabel: 'Start Quiz',
             browseVocabularyLabel: 'Vocabulary',
+            flashcardLabel: 'Flashcard',
             onStartQuiz: () {},
             onBrowseVocabulary: () {},
+            onFlashcard: () {},
           ),
         ],
       ),
@@ -964,6 +986,98 @@ class _AudioPlayButtonShowcase extends StatelessWidget {
 
 /// No-op AudioService for Widgetbook stories — never makes real network calls.
 AudioService get _nullAudioService => AudioService.stub();
+
+// ---------------------------------------------------------------------------
+// Flashcard Showcases
+// ---------------------------------------------------------------------------
+
+final _mockWordWithKanji = WordSummary(
+  id: 1,
+  kanji: '食べる',
+  hiragana: 'たべる',
+  romaji: 'taberu',
+  definitionZh: '吃、食用',
+  definitionEn: 'to eat',
+  partOfSpeech: 'verb',
+  jlptLevel: 'N5',
+);
+
+final _mockWordKanaOnly = WordSummary(
+  id: 2,
+  kanji: null,
+  hiragana: 'たくさん',
+  romaji: 'takusan',
+  definitionZh: '很多、大量',
+  definitionEn: 'many, a lot',
+  partOfSpeech: 'adverb',
+  jlptLevel: 'N5',
+);
+
+class _FlashcardFrontShowcase extends StatelessWidget {
+  // ignore: prefer_const_constructors_in_immutables
+  _FlashcardFrontShowcase();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Center(
+        child: SizedBox(
+          height: 320,
+          child: FlashcardCard(
+            word: _mockWordWithKanji,
+            isFlipped: false,
+            locale: 'zh',
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FlashcardBackShowcase extends StatelessWidget {
+  // ignore: prefer_const_constructors_in_immutables
+  _FlashcardBackShowcase();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Center(
+        child: SizedBox(
+          height: 320,
+          child: FlashcardCard(
+            word: _mockWordWithKanji,
+            isFlipped: true,
+            locale: 'zh',
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FlashcardKanaOnlyShowcase extends StatelessWidget {
+  // ignore: prefer_const_constructors_in_immutables
+  _FlashcardKanaOnlyShowcase();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Center(
+        child: SizedBox(
+          height: 320,
+          child: FlashcardCard(
+            word: _mockWordKanaOnly,
+            isFlipped: false,
+            locale: 'zh',
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Icon Text Button Showcase

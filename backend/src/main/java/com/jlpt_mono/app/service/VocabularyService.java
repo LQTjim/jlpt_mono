@@ -72,6 +72,17 @@ public class VocabularyService {
         return WordDetailResponse.from(word, examples, relations);
     }
 
+    public List<WordSummaryResponse> getRandomFlashcards(String jlptLevel, int count) {
+        if (jlptLevel == null || jlptLevel.isBlank()) {
+            throw new IllegalArgumentException("jlptLevel is required");
+        }
+        int safeCount = Math.max(1, Math.min(count, 50));
+        return wordRepository.findRandomByJlptLevel(jlptLevel.trim(), safeCount)
+                .stream()
+                .map(WordSummaryResponse::from)
+                .toList();
+    }
+
     @Cacheable("categoryTree")
     public List<CategoryResponse> getCategoryTree() {
         List<Category> all = categoryRepository.findAll();

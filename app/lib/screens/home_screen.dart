@@ -12,6 +12,7 @@ import '../widgets/greeting_header.dart';
 import '../widgets/quick_action_bar.dart';
 import '../widgets/quiz_history_tile.dart';
 import '../widgets/study_summary_card.dart';
+import 'flashcard_session_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final void Function(int index) onNavigateToTab;
@@ -67,8 +68,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 QuickActionBar(
                   startQuizLabel: l10n.startQuiz,
                   browseVocabularyLabel: l10n.browseVocabulary,
+                  flashcardLabel: l10n.flashcardTitle,
                   onStartQuiz: () => widget.onNavigateToTab(2),
                   onBrowseVocabulary: () => widget.onNavigateToTab(1),
+                  onFlashcard: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          FlashcardSessionScreen(jlptLevel: jlptLevel),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
 
