@@ -12,8 +12,11 @@ import 'package:provider/provider.dart';
 import '../providers/audio_provider.dart';
 import '../services/audio_service.dart';
 import '../models/word_summary.dart';
+import '../widgets/app_bottom_nav_bar.dart';
 import '../widgets/app_button.dart';
+import '../widgets/app_loading_screen.dart';
 import '../widgets/audio_play_button.dart';
+import '../widgets/jlpt_level_tag.dart';
 import '../widgets/flashcard_card.dart';
 import '../widgets/greeting_header.dart';
 import '../widgets/quick_action_bar.dart';
@@ -119,6 +122,10 @@ class WidgetbookApp extends StatelessWidget {
         WidgetbookCategory(
           name: 'Components',
           children: [
+            WidgetbookComponent(name: 'AppLoadingScreen', useCases: [
+              WidgetbookUseCase(
+                  name: 'Default', builder: (_) => const AppLoadingScreen()),
+            ]),
             WidgetbookComponent(name: 'AppButton', useCases: [
               WidgetbookUseCase(
                   name: 'All Variants', builder: (_) => const _ButtonShowcase()),
@@ -126,6 +133,24 @@ class WidgetbookApp extends StatelessWidget {
             WidgetbookComponent(name: 'AppIconTextButton', useCases: [
               WidgetbookUseCase(
                   name: 'Examples', builder: (_) => const _IconTextButtonShowcase()),
+            ]),
+            WidgetbookComponent(name: 'AppBottomNavBar', useCases: [
+              WidgetbookUseCase(
+                  name: 'Interactive',
+                  builder: (_) => const _AppBottomNavBarShowcase()),
+              WidgetbookUseCase(
+                  name: 'All Items Selected',
+                  builder: (_) => const _AppBottomNavBarAllStatesShowcase()),
+            ]),
+            WidgetbookComponent(name: 'JlptLevelTag', useCases: [
+              WidgetbookUseCase(
+                  name: 'All Levels',
+                  builder: (_) => const _JlptLevelTagShowcase()),
+            ]),
+            WidgetbookComponent(name: 'JlptLevelChip', useCases: [
+              WidgetbookUseCase(
+                  name: 'Interactive',
+                  builder: (_) => const _JlptLevelChipShowcase()),
             ]),
           ],
         ),
@@ -552,9 +577,13 @@ class _QuizOptionCardShowcaseState extends State<_QuizOptionCardShowcase> {
           const Text('Interactive',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
-          ...options.map((o) => Padding(
+          ...options.asMap().entries.map((entry) {
+            final index = entry.key;
+            final o = entry.value;
+            return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: QuizOptionCard(
+                  index: index,
                   label: o.$1,
                   text: o.$2,
                   state: _selected == o.$1
@@ -562,15 +591,17 @@ class _QuizOptionCardShowcaseState extends State<_QuizOptionCardShowcase> {
                       : QuizOptionState.idle,
                   onTap: () => setState(() => _selected = o.$1),
                 ),
-              )),
+              );
+          }),
           const SizedBox(height: 24),
           const Text('Japanese Word Options',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           const QuizOptionCard(
-              label: 'A', text: '食べる (たべる)', state: QuizOptionState.idle),
+              index: 0, label: 'A', text: '食べる (たべる)', state: QuizOptionState.idle),
           const SizedBox(height: 8),
           const QuizOptionCard(
+              index: 1,
               label: 'B',
               text: '飲む (のむ)',
               state: QuizOptionState.selected),
@@ -1119,6 +1150,162 @@ class _IconTextButtonShowcase extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// AppBottomNavBar Showcase
+// ---------------------------------------------------------------------------
+
+final _defaultNavItems = [
+  const AppNavItemData(
+    icon: Icons.home_outlined,
+    activeIcon: Icons.home,
+    label: 'Home',
+  ),
+  const AppNavItemData(
+    icon: Icons.menu_book_outlined,
+    activeIcon: Icons.menu_book,
+    label: 'Vocabulary',
+  ),
+  const AppNavItemData(
+    icon: Icons.edit_note,
+    activeIcon: Icons.edit_note,
+    label: 'Quiz',
+  ),
+  const AppNavItemData(
+    icon: Icons.person_outline,
+    activeIcon: Icons.person,
+    label: 'Profile',
+  ),
+];
+
+class _AppBottomNavBarShowcase extends StatefulWidget {
+  const _AppBottomNavBarShowcase();
+
+  @override
+  State<_AppBottomNavBarShowcase> createState() =>
+      _AppBottomNavBarShowcaseState();
+}
+
+class _AppBottomNavBarShowcaseState extends State<_AppBottomNavBarShowcase> {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Expanded(
+          child: Center(
+            child: Text(
+              'Tab $_selectedIndex selected',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+          ),
+        ),
+        AppBottomNavBar(
+          selectedIndex: _selectedIndex,
+          onItemTap: (i) => setState(() => _selectedIndex = i),
+          items: _defaultNavItems,
+        ),
+      ],
+    );
+  }
+}
+
+class _AppBottomNavBarAllStatesShowcase extends StatelessWidget {
+  const _AppBottomNavBarAllStatesShowcase();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (int selected = 0; selected < 4; selected++) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+              child: Text(
+                'Selected: ${_defaultNavItems[selected].label}',
+                style: const TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+            ),
+            AppBottomNavBar(
+              selectedIndex: selected,
+              onItemTap: (_) {},
+              items: _defaultNavItems,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// JlptLevelTag Showcase
+// ---------------------------------------------------------------------------
+
+class _JlptLevelTagShowcase extends StatelessWidget {
+  const _JlptLevelTagShowcase();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: const [
+            JlptLevelTag(level: 'N5'),
+            JlptLevelTag(level: 'N4'),
+            JlptLevelTag(level: 'N3'),
+            JlptLevelTag(level: 'N2'),
+            JlptLevelTag(level: 'N1'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// JlptLevelChip Showcase
+// ---------------------------------------------------------------------------
+
+class _JlptLevelChipShowcase extends StatefulWidget {
+  const _JlptLevelChipShowcase();
+
+  @override
+  State<_JlptLevelChipShowcase> createState() => _JlptLevelChipShowcaseState();
+}
+
+class _JlptLevelChipShowcaseState extends State<_JlptLevelChipShowcase> {
+  String _selected = 'N5';
+
+  @override
+  Widget build(BuildContext context) {
+    const levels = ['N5', 'N4', 'N3', 'N2', 'N1'];
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: levels.map((level) {
+            return JlptLevelChip(
+              level: level,
+              selected: _selected == level,
+              onTap: () => setState(() => _selected = level),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
