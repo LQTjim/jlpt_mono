@@ -1,0 +1,142 @@
+import 'package:flutter/material.dart';
+
+import '../theme/app_colors.dart';
+
+class AppNavItemData {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+
+  const AppNavItemData({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+  });
+}
+
+class AppBottomNavBar extends StatelessWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onItemTap;
+  final List<AppNavItemData> items;
+
+  const AppBottomNavBar({
+    super.key,
+    required this.selectedIndex,
+    required this.onItemTap,
+    required this.items,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? AppColors.borderDark : AppColors.inkDark,
+            width: 2.0,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 40,
+            spreadRadius: -15,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              for (int i = 0; i < items.length; i++)
+                _AppNavItem(
+                  data: items[i],
+                  isSelected: selectedIndex == i,
+                  onTap: () => onItemTap(i),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AppNavItem extends StatelessWidget {
+  final AppNavItemData data;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  static final Matrix4 _scaleUp = Matrix4.diagonal3Values(1.1, 1.1, 1.0);
+  static final Matrix4 _scaleNormal = Matrix4.identity();
+
+  const _AppNavItem({
+    required this.data,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const selectedColor = AppColors.terracottaMuted;
+    final unselectedColor =
+        isDark ? AppColors.textMutedDark : AppColors.textMuted;
+    final color = isSelected ? selectedColor : unselectedColor;
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.all(8.0),
+        decoration: isSelected
+            ? BoxDecoration(
+                border: Border.all(color: selectedColor, width: 2.0),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.elliptical(11, 46),
+                  topRight: Radius.elliptical(49, 14),
+                  bottomRight: Radius.elliptical(12, 46),
+                  bottomLeft: Radius.elliptical(48, 14),
+                ),
+              )
+            : const BoxDecoration(
+                border: Border.fromBorderSide(
+                  BorderSide(color: Colors.transparent, width: 2.0),
+                ),
+              ),
+        transform: isSelected ? _scaleUp : _scaleNormal,
+        transformAlignment: Alignment.center,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              isSelected ? data.activeIcon : data.icon,
+              color: color,
+              size: 24,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              data.label.toUpperCase(),
+              style: TextStyle(
+                color: color,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
