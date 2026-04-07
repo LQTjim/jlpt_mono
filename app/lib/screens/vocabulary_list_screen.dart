@@ -8,7 +8,7 @@ import '../providers/vocabulary_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
-import '../widgets/app_tag.dart';
+import '../widgets/jlpt_level_tag.dart';
 import 'vocabulary_detail_screen.dart';
 
 class VocabularyListScreen extends StatefulWidget {
@@ -103,8 +103,8 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
         child: ListView(
           scrollDirection: Axis.horizontal,
           children: [
-            _FilterChip(
-              label: l10n.allLevels,
+            JlptLevelChip(
+              level: l10n.allLevels,
               selected: selectedLevel == null,
               onTap: () => _onLevelSelected(null),
             ),
@@ -112,8 +112,8 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
             ...levels.map((level) {
               return Padding(
                 padding: const EdgeInsets.only(right: AppSpacing.sm),
-                child: _FilterChip(
-                  label: level,
+                child: JlptLevelChip(
+                  level: level,
                   selected: selectedLevel == level,
                   onTap: () => _onLevelSelected(level),
                 ),
@@ -246,47 +246,9 @@ class _WordListTile extends StatelessWidget {
             )
           : null,
       trailing: word.jlptLevel != null
-          ? AppTag(label: word.jlptLevel!, color: AppColors.terracottaDark)
+          ? JlptLevelTag(level: word.jlptLevel!)
           : null,
     );
   }
 }
 
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md, vertical: AppSpacing.sm,
-        ),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.terracotta : AppColors.warmWhite,
-          borderRadius: AppSpacing.radiusFull,
-          border: Border.all(
-            color: selected ? AppColors.terracotta : AppColors.divider,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: selected ? Colors.white : AppColors.textPrimary,
-          ),
-        ),
-      ),
-    );
-  }
-}

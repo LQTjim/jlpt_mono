@@ -12,6 +12,7 @@ import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import '../widgets/app_tag.dart';
 import '../widgets/audio_play_button.dart';
+import '../widgets/jlpt_level_tag.dart';
 
 class VocabularyDetailScreen extends StatefulWidget {
   final int wordId;
@@ -140,7 +141,7 @@ class _DetailContent extends StatelessWidget {
         Row(
           children: [
             if (word.jlptLevel != null)
-              AppTag(label: word.jlptLevel!, color: AppColors.terracotta),
+              JlptLevelTag(level: word.jlptLevel!),
             if (word.partOfSpeech != null) ...[
               const SizedBox(width: AppSpacing.sm),
               AppTag(label: word.partOfSpeech!, color: AppColors.sage),

@@ -180,12 +180,15 @@ class _QuizSessionScreenState extends State<QuizSessionScreen> {
           const SizedBox(height: AppSpacing.lg),
 
           // Options
-          ...question.options.map((option) {
+          ...question.options.asMap().entries.map((entry) {
+            final index = entry.key;
+            final option = entry.value;
             final isSelected = selectedKey == option.key;
             final isLocked = _pendingAdvanceIndex != null;
             return Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.sm),
               child: QuizOptionCard(
+                index: index,
                 label: option.key,
                 text: option.text,
                 state: isSelected

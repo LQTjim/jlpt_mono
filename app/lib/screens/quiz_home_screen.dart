@@ -9,6 +9,7 @@ import '../providers/quiz_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../widgets/app_button.dart';
+import '../widgets/jlpt_level_tag.dart';
 import '../widgets/quiz_history_tile.dart';
 import '../widgets/quiz_settings_panel.dart';
 import 'flashcard_session_screen.dart';
@@ -186,39 +187,12 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                   const SizedBox(height: AppSpacing.sm),
                   Row(
                     children: QuizSettingsPanel.levels.map((l) {
-                      final selected = level == l;
                       return Padding(
                         padding: const EdgeInsets.only(right: AppSpacing.sm),
-                        child: GestureDetector(
+                        child: JlptLevelChip(
+                          level: l,
+                          selected: level == l,
                           onTap: () => setSheetState(() => level = l),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 150),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.md,
-                              vertical: AppSpacing.sm,
-                            ),
-                            decoration: BoxDecoration(
-                              color: selected
-                                  ? AppColors.terracotta
-                                  : Colors.transparent,
-                              borderRadius: AppSpacing.radiusMd,
-                              border: Border.all(
-                                color: selected
-                                    ? AppColors.terracotta
-                                    : AppColors.divider,
-                              ),
-                            ),
-                            child: Text(
-                              l,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: selected
-                                    ? Colors.white
-                                    : AppColors.textSecondary,
-                              ),
-                            ),
-                          ),
                         ),
                       );
                     }).toList(),
