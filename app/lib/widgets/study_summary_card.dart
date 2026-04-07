@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
-import '../theme/app_spacing.dart';
-import '../theme/app_typography.dart';
+import '../theme/sketch_borders.dart';
 
 class StudySummaryCard extends StatelessWidget {
   final int totalQuizzes;
@@ -25,17 +24,19 @@ class StudySummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? AppColors.surfaceDark : Colors.white;
+    final borderColor = isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.15);
 
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.lg,
+        horizontal: 16,
+        vertical: 24,
       ),
       decoration: BoxDecoration(
-        color: AppColors.warmWhite,
-        borderRadius: AppSpacing.radiusMd,
-        border: Border.all(color: AppColors.divider),
-        boxShadow: AppSpacing.cardShadow,
+        color: bgColor,
+        borderRadius: SketchBorders.v0,
+        border: Border.all(color: borderColor, width: 1.5),
       ),
       child: Row(
         children: [
@@ -44,13 +45,13 @@ class StudySummaryCard extends StatelessWidget {
             label: totalQuizzesLabel,
             locale: locale,
           ),
-          _verticalDivider,
+          _wavyDivider(borderColor),
           _StatColumn(
             value: '$averageScore%',
             label: averageScoreLabel,
             locale: locale,
           ),
-          _verticalDivider,
+          _wavyDivider(borderColor),
           _StatColumn(
             value: '$currentStreak',
             label: currentStreakLabel,
@@ -61,11 +62,41 @@ class StudySummaryCard extends StatelessWidget {
     );
   }
 
-  static const _verticalDivider = SizedBox(
-    width: 1,
-    height: 40,
-    child: ColoredBox(color: AppColors.divider),
-  );
+  Widget _wavyDivider(Color color) {
+    return SizedBox(
+      width: 4,
+      height: 48,
+      child: CustomPaint(painter: _WavyLinePainter(color: color)),
+    );
+  }
+}
+
+class _WavyLinePainter extends CustomPainter {
+  final Color color;
+
+  _WavyLinePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final path = Path();
+    path.moveTo(size.width / 2, 0);
+    // Draw a slight zigzag to look hand-drawn
+    path.lineTo(size.width / 2 + 1.5, size.height * 0.3);
+    path.lineTo(size.width / 2 - 1.5, size.height * 0.7);
+    path.lineTo(size.width / 2, size.height);
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _WavyLinePainter old) => old.color != color;
 }
 
 class _StatColumn extends StatelessWidget {
@@ -81,19 +112,30 @@ class _StatColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final subtitleColor = isDark ? const Color(0xFFa8a29e) : const Color(0xFF7f6f6c);
+
     return Expanded(
       child: Column(
         children: [
           Text(
             value,
-            style: AppTypography.headingMedium(locale).copyWith(
-              color: AppColors.terracotta,
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -1.0,
+              color: AppColors.terracottaMuted, // Graphite theme's primary
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: 8),
           Text(
-            label,
-            style: AppTypography.bodySmall(locale),
+            label.toUpperCase(),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.5,
+              color: subtitleColor,
+            ),
             textAlign: TextAlign.center,
           ),
         ],

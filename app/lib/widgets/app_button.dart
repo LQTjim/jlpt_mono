@@ -24,25 +24,65 @@ class AppButton extends StatelessWidget {
     this.iconTrailing = false,
   });
 
+  BorderRadius _getSketchBorder(int index) {
+    switch (index.abs() % 4) {
+      case 0:
+        return const BorderRadius.only(
+          topLeft: Radius.elliptical(12, 20),
+          topRight: Radius.elliptical(180, 10),
+          bottomRight: Radius.elliptical(8, 24),
+          bottomLeft: Radius.elliptical(160, 12),
+        );
+      case 1:
+        return const BorderRadius.only(
+          topLeft: Radius.elliptical(180, 12),
+          topRight: Radius.elliptical(10, 22),
+          bottomRight: Radius.elliptical(150, 10),
+          bottomLeft: Radius.elliptical(12, 18),
+        );
+      case 2:
+        return const BorderRadius.only(
+          topLeft: Radius.elliptical(8, 24),
+          topRight: Radius.elliptical(150, 10),
+          bottomRight: Radius.elliptical(12, 20),
+          bottomLeft: Radius.elliptical(180, 12),
+        );
+      case 3:
+      default:
+        return const BorderRadius.only(
+          topLeft: Radius.elliptical(150, 10),
+          topRight: Radius.elliptical(12, 18),
+          bottomRight: Radius.elliptical(180, 12),
+          bottomLeft: Radius.elliptical(10, 22),
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    final primaryColor = AppColors.terracottaMuted;
+    final textIconColor = isDark ? AppColors.inkLight : AppColors.inkDark;
+    final borderColor = isDark ? Colors.white.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.2);
+
     return switch (variant) {
-      AppButtonVariant.filled => _buildFilled(),
-      AppButtonVariant.outlined => _buildOutlined(),
-      AppButtonVariant.text => _buildText(),
+      AppButtonVariant.filled => _buildFilled(primaryColor),
+      AppButtonVariant.outlined => _buildOutlined(borderColor, textIconColor),
+      AppButtonVariant.text => _buildText(textIconColor),
     };
   }
 
-  Widget _buildFilled() {
+  Widget _buildFilled(Color primaryColor) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.terracotta,
+        backgroundColor: primaryColor,
         foregroundColor: Colors.white,
         disabledBackgroundColor: AppColors.divider,
         disabledForegroundColor: AppColors.textHint,
         textStyle: _textStyle,
-        shape: RoundedRectangleBorder(borderRadius: AppSpacing.radiusMd),
+        shape: RoundedRectangleBorder(borderRadius: _getSketchBorder(label.hashCode)),
         padding: _padding,
         elevation: 0,
       ),
@@ -50,42 +90,45 @@ class AppButton extends StatelessWidget {
     );
   }
 
-  Widget _buildOutlined() {
+  Widget _buildOutlined(Color borderCol, Color textIconColor) {
     return OutlinedButton(
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.terracotta,
+        foregroundColor: textIconColor,
         disabledForegroundColor: AppColors.textHint,
         textStyle: _textStyle,
         side: BorderSide(
-          color: onPressed != null ? AppColors.terracotta : AppColors.divider,
+          color: onPressed != null ? borderCol : AppColors.divider,
+          width: 1.5,
         ),
-        shape: RoundedRectangleBorder(borderRadius: AppSpacing.radiusMd),
+        shape: RoundedRectangleBorder(borderRadius: _getSketchBorder(label.hashCode)),
         padding: _padding,
       ),
-      child: _buildChild(AppColors.terracotta),
+      child: _buildChild(textIconColor),
     );
   }
 
-  Widget _buildText() {
+  Widget _buildText(Color textIconColor) {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        foregroundColor: AppColors.textPrimary,
+        foregroundColor: textIconColor,
         disabledForegroundColor: AppColors.textHint,
         textStyle: _textStyle,
+        shape: RoundedRectangleBorder(borderRadius: _getSketchBorder(label.hashCode)),
         padding: _padding,
       ),
-      child: _buildChild(AppColors.textPrimary),
+      child: _buildChild(textIconColor),
     );
   }
 
   Widget _buildChild(Color iconColor) {
-    if (icon == null) return Text(label);
+    final textWidget = Text(label.toUpperCase());
+
+    if (icon == null) return textWidget;
 
     final iconWidget = Icon(icon, size: _iconSize, color: onPressed != null ? iconColor : AppColors.textHint);
-    final textWidget = Text(label);
-    final gap = SizedBox(width: AppSpacing.sm);
+    final gap = const SizedBox(width: 8);
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -96,21 +139,21 @@ class AppButton extends StatelessWidget {
   }
 
   TextStyle get _textStyle => switch (size) {
-        AppButtonSize.small => const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-        AppButtonSize.medium => const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-        AppButtonSize.large => const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+        AppButtonSize.small => const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 1.2),
+        AppButtonSize.medium => const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, letterSpacing: 1.5),
+        AppButtonSize.large => const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, letterSpacing: 2.0),
       };
 
   EdgeInsets get _padding => switch (size) {
-        AppButtonSize.small => const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-        AppButtonSize.medium => const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+        AppButtonSize.small => const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 10),
+        AppButtonSize.medium => const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 14),
         AppButtonSize.large => const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: 18),
       };
 
   double get _iconSize => switch (size) {
         AppButtonSize.small => 16,
         AppButtonSize.medium => 18,
-        AppButtonSize.large => 20,
+        AppButtonSize.large => 22,
       };
 }
 
@@ -129,19 +172,37 @@ class AppIconTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textCol = isDark ? AppColors.textMutedDark : AppColors.textMuted;
+
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        foregroundColor: AppColors.textSecondary,
-        textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+        foregroundColor: textCol,
+        shape: const RoundedRectangleBorder(
+           borderRadius: BorderRadius.only(
+             topLeft: Radius.elliptical(8, 12),
+             topRight: Radius.elliptical(40, 4),
+             bottomRight: Radius.elliptical(6, 14),
+             bottomLeft: Radius.elliptical(60, 6),
+           )
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 20, color: AppColors.textSecondary),
-          const SizedBox(height: 2),
-          Text(label),
+          Icon(icon, size: 22, color: onPressed != null ? textCol : AppColors.textHint),
+          const SizedBox(height: 4),
+          Text(
+            label.toUpperCase(),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.5,
+              color: onPressed != null ? textCol : AppColors.textHint,
+            ),
+          ),
         ],
       ),
     );

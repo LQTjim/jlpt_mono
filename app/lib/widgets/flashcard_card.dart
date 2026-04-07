@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../models/word_summary.dart';
 import '../theme/app_colors.dart';
-import '../theme/app_spacing.dart';
 import 'app_tag.dart';
+import 'jlpt_level_tag.dart';
 
 class FlashcardCard extends StatefulWidget {
   final WordSummary word;
@@ -53,6 +53,57 @@ class _FlashcardCardState extends State<FlashcardCard>
     super.dispose();
   }
 
+  // --- Hand-drawn Styles ---
+  BorderRadius _getSketchBorder(int index) {
+    switch (index.abs() % 4) {
+      case 0:
+        return const BorderRadius.only(
+          topLeft: Radius.elliptical(14, 20),
+          topRight: Radius.elliptical(180, 10),
+          bottomRight: Radius.elliptical(12, 28),
+          bottomLeft: Radius.elliptical(160, 12),
+        );
+      case 1:
+        return const BorderRadius.only(
+          topLeft: Radius.elliptical(180, 12),
+          topRight: Radius.elliptical(10, 24),
+          bottomRight: Radius.elliptical(150, 12),
+          bottomLeft: Radius.elliptical(14, 18),
+        );
+      case 2:
+        return const BorderRadius.only(
+          topLeft: Radius.elliptical(10, 26),
+          topRight: Radius.elliptical(150, 10),
+          bottomRight: Radius.elliptical(14, 20),
+          bottomLeft: Radius.elliptical(180, 14),
+        );
+      case 3:
+      default:
+        return const BorderRadius.only(
+          topLeft: Radius.elliptical(160, 10),
+          topRight: Radius.elliptical(14, 22),
+          bottomRight: Radius.elliptical(180, 12),
+          bottomLeft: Radius.elliptical(12, 26),
+        );
+    }
+  }
+
+
+  Widget _cardShell({required Widget child, required Color backgroundColor, required int hash}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDark ? AppColors.inkLight : AppColors.inkDark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: _getSketchBorder(hash),
+        border: Border.all(color: borderColor, width: 2.0),
+      ),
+      padding: const EdgeInsets.all(28.0),
+      child: child,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -78,16 +129,22 @@ class _FlashcardCardState extends State<FlashcardCard>
   Widget _buildFront() {
     final word = widget.word;
     final hasKanji = word.kanji != null && word.kanji!.isNotEmpty;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    final textColor = isDark ? AppColors.inkLight : AppColors.inkDark;
+    final subtitleColor = isDark ? AppColors.textMutedDark : AppColors.textMuted;
 
     return _cardShell(
-      backgroundColor: AppColors.warmWhite,
+      backgroundColor: isDark ? const Color(0xFF1c1917) : Colors.white,
+      hash: word.hiragana.hashCode,
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           if (word.jlptLevel != null)
             Positioned(
-              top: 0,
-              right: 0,
-              child: AppTag(label: word.jlptLevel!, color: AppColors.terracotta),
+              top: -8,
+              right: -8,
+              child: JlptLevelTag(level: word.jlptLevel!),
             ),
           Center(
             child: Column(
@@ -97,30 +154,33 @@ class _FlashcardCardState extends State<FlashcardCard>
                   Text(
                     word.kanji!,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 52,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                    style: TextStyle(
+                      fontSize: 56,
+                      fontWeight: FontWeight.w800,
+                      color: textColor,
                       height: 1.2,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: 12),
                   Text(
                     word.hiragana,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      color: AppColors.textSecondary,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2.0,
+                      color: subtitleColor,
                     ),
                   ),
                 ] else
                   Text(
                     word.hiragana,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                    style: TextStyle(
+                      fontSize: 48,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.5,
+                      color: textColor,
                     ),
                   ),
               ],
@@ -135,16 +195,22 @@ class _FlashcardCardState extends State<FlashcardCard>
     final word = widget.word;
     final isZh = widget.locale == 'zh';
     final definition = isZh ? word.definitionZh : word.definitionEn;
+    
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? AppColors.inkLight : AppColors.inkDark;
 
     return _cardShell(
-      backgroundColor: AppColors.cream,
+      // Back commonly uses a slightly warm off-color or just the cream/warmWhite depending on mode
+      backgroundColor: isDark ? AppColors.surfaceElevatedDark : AppColors.cream,
+      hash: word.hiragana.hashCode,
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           if (word.jlptLevel != null)
             Positioned(
-              top: 0,
-              right: 0,
-              child: AppTag(label: word.jlptLevel!, color: AppColors.terracotta),
+              top: -8,
+              right: -8,
+              child: JlptLevelTag(level: word.jlptLevel!),
             ),
           Center(
             child: Column(
@@ -155,51 +221,23 @@ class _FlashcardCardState extends State<FlashcardCard>
                   Text(
                     definition,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.2,
+                      color: textColor,
                       height: 1.4,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: 16),
                 ],
                 if (word.partOfSpeech != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.xs,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.sageMuted.withValues(alpha: 0.3),
-                      borderRadius: AppSpacing.radiusFull,
-                    ),
-                    child: Text(
-                      word.partOfSpeech!,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
+                  AppTag(label: word.partOfSpeech!, color: AppColors.sageMuted),
               ],
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _cardShell({required Widget child, required Color backgroundColor}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: AppSpacing.radiusLg,
-        boxShadow: AppSpacing.elevatedShadow,
-      ),
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      child: child,
     );
   }
 }

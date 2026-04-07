@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
-import 'app_tag.dart';
+import 'jlpt_level_tag.dart';
 
 class GreetingHeader extends StatelessWidget {
   final String name;
@@ -44,7 +44,7 @@ class GreetingHeader extends StatelessWidget {
                 style: AppTypography.headingSmall(locale),
               ),
               const SizedBox(height: AppSpacing.xs),
-              AppTag(label: jlptLevel, color: AppColors.terracotta),
+              JlptLevelTag(level: jlptLevel),
             ],
           ),
         ),
