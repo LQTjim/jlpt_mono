@@ -6,6 +6,18 @@
 - Flutter SDK
 - Docker (for PostgreSQL)
 
+## Configuration
+
+The backend requires a local secrets file that is **not committed to version control**.
+
+Copy the example and fill in your values:
+
+```bash
+cp backend/src/main/resources/application-local.properties.example \
+   backend/src/main/resources/application-local.properties
+```
+
+
 ## Backend
 
 ```bash
