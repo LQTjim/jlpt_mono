@@ -29,16 +29,11 @@ class AppBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDark ? AppColors.borderDark : AppColors.inkDark;
 
     return Container(
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-        border: Border(
-          top: BorderSide(
-            color: isDark ? AppColors.borderDark : AppColors.inkDark,
-            width: 2.0,
-          ),
-        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.08),
@@ -48,25 +43,71 @@ class AppBottomNavBar extends StatelessWidget {
           ),
         ],
       ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              for (int i = 0; i < items.length; i++)
-                _AppNavItem(
-                  data: items[i],
-                  isSelected: selectedIndex == i,
-                  onTap: () => onItemTap(i),
-                ),
-            ],
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 4,
+            child: CustomPaint(painter: _WavyTopLinePainter(color: borderColor)),
           ),
-        ),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  for (int i = 0; i < items.length; i++)
+                    _AppNavItem(
+                      data: items[i],
+                      isSelected: selectedIndex == i,
+                      onTap: () => onItemTap(i),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
+}
+
+class _WavyTopLinePainter extends CustomPainter {
+  final Color color;
+
+  _WavyTopLinePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final path = Path();
+    path.moveTo(0, size.height / 2);
+    
+    // Draw a bumpy/sketchy straight horizontal line
+    const int segments = 16;
+    final double step = size.width / segments;
+    for (int i = 1; i <= segments; i++) {
+       // deterministic wobble pattern for sketch feel
+       double waveOffset = (i % 2 != 0) ? -1.0 : 1.0;
+       if (i % 3 == 0) waveOffset = 0.0;
+       path.lineTo(i * step, size.height / 2 + waveOffset);
+    }
+    
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _WavyTopLinePainter old) => old.color != color;
 }
 
 class _AppNavItem extends StatelessWidget {
@@ -130,7 +171,7 @@ class _AppNavItem extends StatelessWidget {
               style: TextStyle(
                 color: color,
                 fontSize: 10,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w800,
                 letterSpacing: 1.5,
               ),
             ),

@@ -35,7 +35,7 @@ class StudySummaryCard extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: SketchBorders.v0,
+        borderRadius: SketchBorders.v3,
         border: Border.all(color: borderColor, width: 1.5),
       ),
       child: Row(
