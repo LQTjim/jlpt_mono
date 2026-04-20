@@ -273,6 +273,12 @@ public class QuizService {
         String kanji = word.getKanji();
         String hiragana = word.getHiragana();
 
+        // Strip leading 〜 prefix (dictionary convention for suffix/counter words like 〜匹, 〜本)
+        if (kanji != null && kanji.startsWith("〜")) {
+            kanji = kanji.substring(1);
+            if (kanji.isBlank()) kanji = null;
+        }
+
         // Try exact kanji match
         if (kanji != null && !kanji.isBlank() && sentence.contains(kanji)) {
             return sentence.replace(kanji, BLANK);

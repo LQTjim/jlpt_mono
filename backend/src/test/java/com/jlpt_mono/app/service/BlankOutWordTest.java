@@ -89,4 +89,18 @@ class BlankOutWordTest {
         assertThat(quizService.blankOutWord("おみずを飲む。", word("水", "みず")))
                 .isEqualTo("お＿＿＿を飲む。");
     }
+
+    @Test
+    @DisplayName("〜前綴計數詞：〜匹 → 匹 → ＿＿＿")
+    void tildePrefixCounterWord() {
+        assertThat(quizService.blankOutWord("魚を4匹釣りました。", word("〜匹", "ひき")))
+                .isEqualTo("魚を4＿＿＿釣りました。");
+    }
+
+    @Test
+    @DisplayName("〜前綴接續詞：〜から（hiragana fallback 仍正常）")
+    void tildePrefixConnector() {
+        assertThat(quizService.blankOutWord("東京から来ました。", word("〜から", "から")))
+                .isEqualTo("東京＿＿＿来ました。");
+    }
 }
